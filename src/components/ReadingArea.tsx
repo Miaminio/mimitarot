@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import { allTarotCards, type TarotCard as TarotCardType } from '@/lib/tarot-data';
 import { canDrawToday, markDrawUsed } from '@/lib/daily-limit';
 import TarotCard from './TarotCard';
-import { Sparkles, Shuffle, Send } from 'lucide-react';
+import { Sparkles, Shuffle, Send, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 type SpreadType = 'choice' | 'timeline' | null;
@@ -15,9 +16,10 @@ const fortuneKeywords = ['运势', '未来', '接下来', '发展', '前景', '�
 function detectIntent(question: string): SpreadType {
   if (decisionKeywords.some(k => question.includes(k))) return 'choice';
   if (fortuneKeywords.some(k => question.includes(k))) return 'timeline';
-  // Default to timeline for general questions
   return 'timeline';
 }
+
+const READING_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tarot-reading`;
 
 const ReadingArea = () => {
   const [question, setQuestion] = useState('');
@@ -26,7 +28,72 @@ const ReadingArea = () => {
   const [shuffledDeck, setShuffledDeck] = useState<TarotCardType[]>([]);
   const [selectedCards, setSelectedCards] = useState<TarotCardType[]>([]);
   const [flippedIndices, setFlippedIndices] = useState<Set<number>>(new Set());
+  const [interpretation, setInterpretation] = useState('');
+  const [isInterpreting, setIsInterpreting] = useState(false);
   const requiredCards = spreadType === 'choice' ? 2 : 3;
+
+  const streamInterpretation = useCallback(async (q: string, cards: TarotCardType[], spread: SpreadType) => {
+    setIsInterpreting(true);
+    setInterpretation('');
+
+    try {
+      const resp = await fetch(READING_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ question: q, cards, spreadType: spread }),
+      });
+
+      if (!resp.ok || !resp.body) {
+        if (resp.status === 429) { toast.error('请求过于频繁，请稍后再试'); return; }
+        if (resp.status === 402) { toast.error('AI 额度不足，请稍后再试'); return; }
+        toast.error('AI 解读暂时不可用');
+        return;
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+          let line = buffer.slice(0, newlineIndex);
+          buffer = buffer.slice(newlineIndex + 1);
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith(':') || line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              fullText += content;
+              setInterpretation(fullText);
+            }
+          } catch {
+            buffer = line + '\n' + buffer;
+            break;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Stream error:', e);
+      toast.error('解读连接中断，请重试');
+    } finally {
+      setIsInterpreting(false);
+    }
+  }, []);
 
   const handleSubmit = useCallback(() => {
     if (!question.trim()) return;
@@ -34,14 +101,13 @@ const ReadingArea = () => {
       toast.error('今日抽牌次数已用完，明天再来吧 ✨');
       return;
     }
-
     const intent = detectIntent(question);
     setSpreadType(intent);
     setPhase('shuffling');
     setSelectedCards([]);
     setFlippedIndices(new Set());
+    setInterpretation('');
 
-    // Simulate shuffle
     setTimeout(() => {
       const shuffled = [...allTarotCards].sort(() => Math.random() - 0.5);
       setShuffledDeck(shuffled.slice(0, 12));
@@ -59,7 +125,10 @@ const ReadingArea = () => {
 
     if (newSelected.length === requiredCards) {
       markDrawUsed();
-      setTimeout(() => setPhase('reading'), 800);
+      setTimeout(() => {
+        setPhase('reading');
+        streamInterpretation(question, newSelected, spreadType);
+      }, 800);
     }
   };
 
@@ -69,6 +138,7 @@ const ReadingArea = () => {
     setSpreadType(null);
     setSelectedCards([]);
     setFlippedIndices(new Set());
+    setInterpretation('');
   };
 
   const spreadLabels = spreadType === 'choice'
@@ -91,7 +161,6 @@ const ReadingArea = () => {
         </motion.div>
 
         <AnimatePresence mode="wait">
-          {/* Input Phase */}
           {phase === 'input' && (
             <motion.div
               key="input"
@@ -105,7 +174,7 @@ const ReadingArea = () => {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="输入你的问题... 例如：我该选择A工作还是B工作？"
-                  className="w-full bg-secondary/50 border border-gold-subtle rounded-xl p-4 pr-12 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-gold/50 focus:card-glow resize-none h-24 font-body text-base transition-all"
+                  className="w-full bg-secondary/50 border border-gold-subtle rounded-xl p-4 pr-12 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-gold/50 resize-none h-24 font-body text-base transition-all"
                 />
                 <button
                   onClick={handleSubmit}
@@ -115,16 +184,12 @@ const ReadingArea = () => {
                   <Send size={14} />
                 </button>
               </div>
-
               {!canDrawToday() && (
-                <p className="text-center text-muted-foreground text-xs">
-                  今日免费抽牌已使用，明天再来吧 ✨
-                </p>
+                <p className="text-center text-muted-foreground text-xs">今日免费抽牌已使用，明天再来吧 ✨</p>
               )}
             </motion.div>
           )}
 
-          {/* Shuffling Phase */}
           {phase === 'shuffling' && (
             <motion.div
               key="shuffling"
@@ -147,7 +212,6 @@ const ReadingArea = () => {
             </motion.div>
           )}
 
-          {/* Selecting Phase */}
           {phase === 'selecting' && (
             <motion.div
               key="selecting"
@@ -156,15 +220,12 @@ const ReadingArea = () => {
               exit={{ opacity: 0 }}
               className="text-center"
             >
-              <p className="text-gold font-display text-lg mb-2">
-                选择 {requiredCards} 张牌
-              </p>
+              <p className="text-gold font-display text-lg mb-2">选择 {requiredCards} 张牌</p>
               <p className="text-muted-foreground text-sm mb-8">
                 已选 {selectedCards.length} / {requiredCards}
                 {' · '}
                 {spreadType === 'choice' ? '二选一牌阵' : '时间流牌阵'}
               </p>
-
               <div className="flex flex-wrap justify-center gap-3">
                 {shuffledDeck.map((card, i) => (
                   <TarotCard
@@ -181,7 +242,6 @@ const ReadingArea = () => {
             </motion.div>
           )}
 
-          {/* Reading Phase */}
           {phase === 'reading' && (
             <motion.div
               key="reading"
@@ -216,20 +276,29 @@ const ReadingArea = () => {
                 ))}
               </div>
 
-              {/* Interpretation placeholder */}
+              {/* AI Interpretation */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-                className="bg-secondary/30 border border-gold-subtle rounded-xl p-6 text-center"
+                transition={{ delay: 0.5 }}
+                className="bg-secondary/30 border border-gold-subtle rounded-xl p-6"
               >
-                <Sparkles className="w-5 h-5 text-gold/40 mx-auto mb-3" />
-                <p className="text-muted-foreground text-sm font-body">
-                  AI 解读功能即将上线，敬请期待...
-                </p>
-                <p className="text-muted-foreground/50 text-xs mt-2">
-                  预留 Gemini API 接口
-                </p>
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="w-4 h-4 text-gold" />
+                  <p className="text-gold font-display text-sm">星光解读</p>
+                  {isInterpreting && <Loader2 className="w-3 h-3 text-gold/50 animate-spin" />}
+                </div>
+
+                {interpretation ? (
+                  <div className="prose prose-sm prose-invert max-w-none text-foreground/80 font-body text-base leading-relaxed">
+                    <ReactMarkdown>{interpretation}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-5 h-5 text-gold/40 animate-spin" />
+                    <span className="text-muted-foreground text-sm ml-2">正在连接星光...</span>
+                  </div>
+                )}
               </motion.div>
 
               <div className="text-center">
