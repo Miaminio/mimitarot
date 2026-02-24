@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { TarotCard as TarotCardType } from '@/lib/tarot-data';
 
@@ -11,15 +12,18 @@ interface TarotCardProps {
 }
 
 const sizeClasses = {
-  sm: 'w-16 h-24 md:w-20 md:h-30',
-  md: 'w-24 h-36 md:w-28 md:h-42',
-  lg: 'w-32 h-48 md:w-40 md:h-60',
+  sm: 'w-16 h-28 md:w-20 md:h-34',
+  md: 'w-24 h-40 md:w-28 md:h-48',
+  lg: 'w-36 h-60 md:w-44 md:h-72',
 };
 
 const TarotCard = ({ card, isFlipped = false, onClick, size = 'md', index = 0, isSelected = false }: TarotCardProps) => {
+  const [imgLoaded, setImgLoaded] = useState(false);
+
   return (
     <motion.div
-      className={`${sizeClasses[size]} perspective-1000 cursor-pointer relative`}
+      className={`${sizeClasses[size]} cursor-pointer relative`}
+      style={{ perspective: '1000px' }}
       onClick={onClick}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -35,34 +39,57 @@ const TarotCard = ({ card, isFlipped = false, onClick, size = 'md', index = 0, i
       >
         {/* Card Back */}
         <div
-          className={`absolute inset-0 rounded-lg border ${isSelected ? 'border-gold card-glow-active' : 'border-gold-subtle card-glow'} bg-secondary flex items-center justify-center`}
+          className={`absolute inset-0 rounded-lg border-2 ${isSelected ? 'border-gold card-glow-active' : 'border-gold-subtle card-glow'} bg-secondary overflow-hidden`}
           style={{ backfaceVisibility: 'hidden' }}
         >
-          <div className="absolute inset-1 rounded-md border border-gold-subtle opacity-50" />
-          <div className="w-3/4 h-3/4 border border-gold-subtle rounded-sm flex items-center justify-center">
-            <div className="text-gold-gradient font-display text-xs md:text-sm">✦</div>
+          <div className="absolute inset-0 bg-gradient-to-br from-cosmic-deep via-secondary to-cosmic-deep" />
+          <div className="absolute inset-1.5 rounded-md border border-gold/20" />
+          <div className="absolute inset-3 rounded-sm border border-gold/10 flex items-center justify-center">
+            <div className="relative">
+              <div className="text-gold/60 font-display text-lg md:text-xl">✦</div>
+              <div className="absolute inset-0 text-gold/20 font-display text-lg md:text-xl animate-pulse-gold">✦</div>
+            </div>
           </div>
-          {/* Corner decorations */}
-          <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-gold-subtle opacity-40" />
-          <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-gold-subtle opacity-40" />
-          <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-gold-subtle opacity-40" />
-          <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-gold-subtle opacity-40" />
+          {/* Corner stars */}
+          <div className="absolute top-2 left-2 text-gold/20 text-[8px]">✧</div>
+          <div className="absolute top-2 right-2 text-gold/20 text-[8px]">✧</div>
+          <div className="absolute bottom-2 left-2 text-gold/20 text-[8px]">✧</div>
+          <div className="absolute bottom-2 right-2 text-gold/20 text-[8px]">✧</div>
         </div>
 
         {/* Card Front */}
         <div
-          className="absolute inset-0 rounded-lg border border-gold-subtle bg-card card-glow flex flex-col items-center justify-center p-2 text-center"
+          className="absolute inset-0 rounded-lg border-2 border-gold-subtle bg-card card-glow overflow-hidden flex flex-col"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
-          <div className="text-gold font-display text-[10px] md:text-xs mb-1 leading-tight">
-            {card?.nameEn}
+          {/* Image area */}
+          <div className="flex-1 relative overflow-hidden bg-secondary/50">
+            {card?.image && (
+              <img
+                src={card.image}
+                alt={card.name}
+                className={`w-full h-full object-cover transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoad={() => setImgLoaded(true)}
+                loading="lazy"
+              />
+            )}
+            {!imgLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-gold/30 font-display text-xs animate-pulse-gold">✦</div>
+              </div>
+            )}
           </div>
-          <div className="text-foreground font-display text-sm md:text-base font-semibold mb-1">
-            {card?.name}
-          </div>
-          <div className="w-8 h-[1px] bg-gold/30 my-1" />
-          <div className="text-muted-foreground text-[9px] md:text-[10px] leading-tight">
-            {card?.upright}
+
+          {/* Text area */}
+          <div className="px-1.5 py-1 md:px-2 md:py-1.5 text-center bg-gradient-to-t from-card via-card to-card/80 border-t border-gold/10">
+            <div className="text-foreground font-display text-[10px] md:text-xs font-semibold leading-tight truncate">
+              {card?.name}
+            </div>
+            {size !== 'sm' && (
+              <div className="text-gold/50 font-display text-[8px] md:text-[9px] leading-tight truncate mt-0.5">
+                {card?.nameEn}
+              </div>
+            )}
           </div>
         </div>
       </motion.div>
