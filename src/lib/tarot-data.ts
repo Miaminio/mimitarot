@@ -4,96 +4,377 @@ export interface TarotCard {
   nameEn: string;
   arcana: 'major' | 'minor';
   suit?: string;
+  image: string;
+  visualDescription: string;
   upright: string;
   reversed: string;
+  uprightDeep: string;
+  reversedWarning: string;
   description: string;
 }
 
+const IMG_BASE = 'https://raw.githubusercontent.com/metabismuth/tarot-json/master/cards';
+
 const majorArcana: TarotCard[] = [
-  { id: 0, name: '愚者', nameEn: 'The Fool', arcana: 'major', upright: '新开始、冒险、自由', reversed: '鲁莽、冒险、停滞', description: '愚者代表着一段全新旅程的开始，象征着无限可能与纯真的勇气。' },
-  { id: 1, name: '魔术师', nameEn: 'The Magician', arcana: 'major', upright: '创造力、意志力、技能', reversed: '欺骗、操控、缺乏方向', description: '魔术师掌握四元素之力，代表将想法化为现实的能力。' },
-  { id: 2, name: '女祭司', nameEn: 'The High Priestess', arcana: 'major', upright: '直觉、神秘、内在智慧', reversed: '隐秘、脱离直觉', description: '女祭司守护潜意识的大门，象征深层智慧与直觉力量。' },
-  { id: 3, name: '女皇', nameEn: 'The Empress', arcana: 'major', upright: '丰盛、母性、自然', reversed: '依赖、空虚、过度放纵', description: '女皇象征大地的丰饶与创造力，代表滋养与成长。' },
-  { id: 4, name: '皇帝', nameEn: 'The Emperor', arcana: 'major', upright: '权威、结构、稳定', reversed: '专制、僵化、控制', description: '皇帝代表秩序与权威，象征领导力与坚实的基础。' },
-  { id: 5, name: '教皇', nameEn: 'The Hierophant', arcana: 'major', upright: '传统、信仰、教导', reversed: '叛逆、非传统', description: '教皇是精神世界的引导者，代表传统智慧与信仰体系。' },
-  { id: 6, name: '恋人', nameEn: 'The Lovers', arcana: 'major', upright: '爱情、和谐、选择', reversed: '失衡、不和谐、错误选择', description: '恋人牌象征深层的连接与重要的人生抉择。' },
-  { id: 7, name: '战车', nameEn: 'The Chariot', arcana: 'major', upright: '决心、胜利、意志力', reversed: '失控、缺乏方向', description: '战车代表凭借意志力克服障碍，勇往直前。' },
-  { id: 8, name: '力量', nameEn: 'Strength', arcana: 'major', upright: '勇气、耐心、内在力量', reversed: '自我怀疑、软弱', description: '力量牌展现的是温柔而坚定的内在勇气。' },
-  { id: 9, name: '隐士', nameEn: 'The Hermit', arcana: 'major', upright: '内省、寻求真理、独处', reversed: '孤立、逃避', description: '隐士提灯独行，象征向内探索与灵性觉醒。' },
-  { id: 10, name: '命运之轮', nameEn: 'Wheel of Fortune', arcana: 'major', upright: '命运、转变、机遇', reversed: '厄运、抗拒变化', description: '命运之轮永不停息，提醒我们万事皆有轮回。' },
-  { id: 11, name: '正义', nameEn: 'Justice', arcana: 'major', upright: '公正、真相、因果', reversed: '不公、逃避责任', description: '正义牌代表因果法则与公平裁决。' },
-  { id: 12, name: '倒吊人', nameEn: 'The Hanged Man', arcana: 'major', upright: '牺牲、放手、新视角', reversed: '拖延、抗拒', description: '倒吊人以全新的角度看世界，在放手中获得领悟。' },
-  { id: 13, name: '死神', nameEn: 'Death', arcana: 'major', upright: '结束、转变、新生', reversed: '抗拒改变、停滞', description: '死神并非终结，而是深刻蜕变与重生的开始。' },
-  { id: 14, name: '节制', nameEn: 'Temperance', arcana: 'major', upright: '平衡、耐心、和谐', reversed: '失衡、过度', description: '节制天使将水在两杯间缓缓倾倒，象征调和与平衡。' },
-  { id: 15, name: '恶魔', nameEn: 'The Devil', arcana: 'major', upright: '束缚、诱惑、物质', reversed: '释放、觉醒', description: '恶魔牌揭示我们内心的枷锁与被束缚的欲望。' },
-  { id: 16, name: '塔', nameEn: 'The Tower', arcana: 'major', upright: '剧变、觉醒、突破', reversed: '逃避灾难、恐惧变化', description: '高塔倒塌，旧的结构被摧毁，为重建铺路。' },
-  { id: 17, name: '星星', nameEn: 'The Star', arcana: 'major', upright: '希望、灵感、宁静', reversed: '失望、缺乏信心', description: '星星在夜空中闪耀，带来治愈与无尽希望。' },
-  { id: 18, name: '月亮', nameEn: 'The Moon', arcana: 'major', upright: '幻觉、直觉、潜意识', reversed: '困惑消散、恢复清明', description: '月光下万物模糊，象征迷雾中的探索与潜意识。' },
-  { id: 19, name: '太阳', nameEn: 'The Sun', arcana: 'major', upright: '快乐、成功、活力', reversed: '暂时挫折、过度乐观', description: '太阳普照大地，带来温暖、喜悦与生命力。' },
-  { id: 20, name: '审判', nameEn: 'Judgement', arcana: 'major', upright: '重生、觉醒、召唤', reversed: '自我怀疑、拒绝召唤', description: '号角吹响，灵魂被唤醒，迎接全新的使命。' },
-  { id: 21, name: '世界', nameEn: 'The World', arcana: 'major', upright: '完成、整合、成就', reversed: '未完成、缺乏闭合', description: '世界牌是大阿尔卡纳的终章，象征圆满与成就。' },
+  {
+    id: 0, name: '愚者', nameEn: 'The Fool', arcana: 'major',
+    image: `${IMG_BASE}/m00.jpg`,
+    visualDescription: '一位青年站在悬崖边缘，仰望天空，怀抱白玫瑰，脚下是万丈深渊。一只小白狗在他脚边蹦跳，似乎在提醒他注意脚下。',
+    upright: '新开始、冒险、自由、纯真',
+    reversed: '鲁莽、冒险、停滞、恐惧',
+    uprightDeep: '愚者代表一段全新旅程的开始。此刻的你拥有无限可能，宇宙邀请你带着赤子之心，勇敢迈出第一步。不必过多计算得失，信任直觉的指引，让灵魂引领方向。',
+    reversedWarning: '你可能正因恐惧而裹足不前，或者过于鲁莽地忽视了潜在风险。审视一下：是内心的犹豫阻碍了你，还是冲动让你忽略了必要的准备？',
+    description: '愚者是大阿尔卡纳的起点与终点，编号为0，象征着无限的可能性与永恒的循环。',
+  },
+  {
+    id: 1, name: '魔术师', nameEn: 'The Magician', arcana: 'major',
+    image: `${IMG_BASE}/m01.jpg`,
+    visualDescription: '魔术师一手指天，一手指地，桌上摆放着权杖、圣杯、宝剑和星币四件法器。他头顶悬浮着无限符号∞，身披红白长袍。',
+    upright: '创造力、意志力、技能、资源充沛',
+    reversed: '欺骗、操控、缺乏方向、才能浪费',
+    uprightDeep: '你已经拥有实现目标所需的一切资源和能力。现在是将想法转化为行动的最佳时机，天地之间的能量正通过你流动，等待你去塑造现实。集中意志，全力以赴。',
+    reversedWarning: '警惕自欺或被他人操控的可能性。你是否在浪费自己的天赋？或者有人正在利用巧言令色来误导你？重新审视你与周围人的真实关系。',
+    description: '魔术师掌握四元素之力，是意识与物质世界之间的桥梁，代表将想法化为现实的神圣能力。',
+  },
+  {
+    id: 2, name: '女祭司', nameEn: 'The High Priestess', arcana: 'major',
+    image: `${IMG_BASE}/m02.jpg`,
+    visualDescription: '女祭司端坐在两根柱子之间，一黑一白，象征对立统一。她膝上放着一卷半遮半掩的卷轴，身后是一幅石榴与棕榈的帷幕。',
+    upright: '直觉、神秘、内在智慧、潜意识',
+    reversed: '隐秘、脱离直觉、表面化、压抑',
+    uprightDeep: '现在是向内倾听的时刻。答案并不在外界的喧嚣中，而在你内心深处的宁静里。信任你的直觉，让潜意识的智慧浮出水面。保持耐心，真相会在适当的时机揭晓。',
+    reversedWarning: '你可能过于依赖理性分析而忽视了内心的声音，或者有重要的信息被刻意隐藏。是时候安静下来，重新与自己的内在智慧建立连接了。',
+    description: '女祭司守护潜意识的大门，她是月亮的化身，象征着隐藏在表象之下的深层智慧。',
+  },
+  {
+    id: 3, name: '女皇', nameEn: 'The Empress', arcana: 'major',
+    image: `${IMG_BASE}/m03.jpg`,
+    visualDescription: '女皇身着华美长裙端坐在天鹅绒垫上，周围环绕着金色麦田和茂密森林。她手持权杖，头戴十二星冠，脚边流淌着清澈溪水。',
+    upright: '丰盛、母性、自然、创造力、感官愉悦',
+    reversed: '依赖、空虚、过度放纵、创造力受阻',
+    uprightDeep: '丰饶的能量正在向你涌来。无论是物质层面还是精神层面，你都处在一个收获与成长的周期中。拥抱你的感性力量，允许自己享受生活的美好，你的创造力正蓬勃绽放。',
+    reversedWarning: '你可能正经历创造力的枯竭，或者过度沉溺于感官享受而忽视了内在成长。检视一下你与自然、身体和情感之间的关系是否失衡。',
+    description: '女皇象征大地母亲的丰饶与无条件的爱，她是生命力与创造力的源泉。',
+  },
+  {
+    id: 4, name: '皇帝', nameEn: 'The Emperor', arcana: 'major',
+    image: `${IMG_BASE}/m04.jpg`,
+    visualDescription: '皇帝身披铠甲端坐在石雕宝座上，宝座装饰着四个公羊头。他右手持权杖，左手握着象征世界的球体，背后是荒芜的山峦。',
+    upright: '权威、结构、稳定、领导力、纪律',
+    reversed: '专制、僵化、控制欲、缺乏灵活',
+    uprightDeep: '现在是建立秩序和结构的时候。你需要以坚定的意志和清晰的战略来主导局面。像一位睿智的统治者那样，用理性和纪律来构建你想要的世界，同时不忘对他人的责任。',
+    reversedWarning: '你是否变得过于控制和僵化？或者你正因缺乏结构而陷入混乱？过度的权威会推开身边的人，而权威的缺失则让你失去方向。寻找掌控与灵活之间的平衡点。',
+    description: '皇帝代表世俗世界的最高权威，是秩序、法则和保护力量的象征。',
+  },
+  {
+    id: 5, name: '教皇', nameEn: 'The Hierophant', arcana: 'major',
+    image: `${IMG_BASE}/m05.jpg`,
+    visualDescription: '教皇身着华丽法衣端坐在两位信徒之间，右手高举象征祝福的手势，左手持三重十字权杖。他头戴三层冠冕，脚下放着两把交叉的钥匙。',
+    upright: '传统、信仰、教导、精神指引、仪式',
+    reversed: '叛逆、非传统、教条主义、个人信仰',
+    uprightDeep: '你正被召唤去探索更深层的精神意义，或者需要一位导师的指引。传统的智慧和既定的体系此刻可以为你提供坚实的支持，不要急于打破规则，先理解规则背后的深意。',
+    reversedWarning: '你可能正在质疑既有的信仰体系或权威人物。这种质疑本身并非坏事，但要小心不要仅仅为了叛逆而叛逆。找到属于你自己的灵性道路。',
+    description: '教皇是精神世界与物质世界之间的桥梁，代表着传承的智慧和信仰的力量。',
+  },
+  {
+    id: 6, name: '恋人', nameEn: 'The Lovers', arcana: 'major',
+    image: `${IMG_BASE}/m06.jpg`,
+    visualDescription: '天使拉斐尔从云端俯瞰一对赤裸男女。男子身后是生命之树，女子身后是善恶知识树，树上缠绕着蛇。远处是一座火山。',
+    upright: '爱情、和谐、选择、价值观统一、亲密关系',
+    reversed: '失衡、不和谐、错误选择、价值观冲突',
+    uprightDeep: '你正面临一个关乎心灵的重要选择。这不仅仅是关于爱情，更是关于你内心深处的价值观。倾听你的心，做出与真实自我一致的选择。真正的和谐来自于内在的统一。',
+    reversedWarning: '你可能正经历关系中的不和谐，或者在重要选择面前摇摆不定。核心问题是：你是否在违背自己的价值观来迎合他人？回到内心，重新校准你的罗盘。',
+    description: '恋人牌不仅象征浪漫爱情，更代表灵魂层面的抉择与价值观的融合。',
+  },
+  {
+    id: 7, name: '战车', nameEn: 'The Chariot', arcana: 'major',
+    image: `${IMG_BASE}/m07.jpg`,
+    visualDescription: '一位身披铠甲的勇士驾驭着由一黑一白两只斯芬克斯拉动的战车。他头顶繁星冠冕，战车上装饰着翅膀和星月符号。',
+    upright: '决心、胜利、意志力、前进、自律',
+    reversed: '失控、缺乏方向、内心冲突、攻击性',
+    uprightDeep: '胜利就在前方，但它需要你坚定的意志和高度的自律。像驾驭战车一样，你需要同时掌控内心相互矛盾的力量，将它们统一为前进的动力。保持专注，你有能力克服一切障碍。',
+    reversedWarning: '你可能感到生活失控，内心的矛盾正在撕裂你。过度的攻击性或完全的放弃都不是答案。停下来，重新找到你的核心方向，再出发。',
+    description: '战车代表意志的凯旋，是通过自律和决心征服一切障碍的力量。',
+  },
+  {
+    id: 8, name: '力量', nameEn: 'Strength', arcana: 'major',
+    image: `${IMG_BASE}/m08.jpg`,
+    visualDescription: '一位身着白衣的女子温柔地合拢一头雄狮的大嘴。她头顶悬浮着无限符号∞，腰间环绕着花环，表情宁静而自信。',
+    upright: '勇气、耐心、内在力量、温柔、自信',
+    reversed: '自我怀疑、软弱、恐惧、失去信心',
+    uprightDeep: '真正的力量不是暴力征服，而是温柔而坚定的掌控。你内在拥有驯服恐惧和欲望的力量。以慈悲对待自己的阴暗面，用爱和耐心去化解而非压制内心的野兽。',
+    reversedWarning: '你可能正被自我怀疑所侵蚀，或者用蛮力来掩饰内心的脆弱。请记住：承认脆弱本身就是一种力量。你不需要证明什么，只需要重新与内在的勇气连接。',
+    description: '力量牌展现的是温柔胜于刚强、慈悲胜于暴力的永恒真理。',
+  },
+  {
+    id: 9, name: '隐士', nameEn: 'The Hermit', arcana: 'major',
+    image: `${IMG_BASE}/m09.jpg`,
+    visualDescription: '一位白发老者独立于雪山之巅，身披灰色斗篷。他右手高举一盏灯笼，灯笼中闪耀着六芒星之光，左手持一根长杖。',
+    upright: '内省、寻求真理、独处、灵性觉醒、智慧',
+    reversed: '孤立、逃避、固步自封、拒绝指导',
+    uprightDeep: '你的灵魂正渴望独处与安静。远离外界的喧嚣，向内探索，你会发现一直在寻找的答案其实就在自己内心深处。这是灵性成长的重要阶段，让内在的光芒照亮你前行的道路。',
+    reversedWarning: '独处和孤立之间有着微妙的界限。你是在有意识地寻求内在智慧，还是在逃避现实和人际关系？过度封闭会让你与世界脱节，适时回到人群中分享你的智慧。',
+    description: '隐士提灯独行于山巅，象征着向内求索的灵性旅程和通过独处获得的深邃智慧。',
+  },
+  {
+    id: 10, name: '命运之轮', nameEn: 'Wheel of Fortune', arcana: 'major',
+    image: `${IMG_BASE}/m10.jpg`,
+    visualDescription: '一个巨大的金色轮盘悬浮在云端，轮上刻着TARO字母和炼金术符号。四角分别是人、鹰、狮和牛的形象，轮上附着着上升和下降的生物。',
+    upright: '命运、转变、机遇、好运、周期',
+    reversed: '厄运、抗拒变化、业力、失控',
+    uprightDeep: '命运之轮正在转动，变化即将来临。这是宇宙节奏的自然流动，顺势而为将带来意想不到的好运。把握此刻的机遇，因为轮转不会永远停留在某个位置。',
+    reversedWarning: '你可能正经历命运的低谷期，或者顽固地抗拒着必然的变化。记住：低谷是暂时的，轮回是永恒的。与其抗拒，不如反思这段经历要教会你什么。',
+    description: '命运之轮象征因果轮回与命运的无常，提醒我们万事皆有其循环与节奏。',
+  },
+  {
+    id: 11, name: '正义', nameEn: 'Justice', arcana: 'major',
+    image: `${IMG_BASE}/m11.jpg`,
+    visualDescription: '正义女神端坐于石柱之间，右手高举利剑，左手持天平。她身着红袍，头戴金冠，表情庄严而公正，身后悬挂着紫色帷幕。',
+    upright: '公正、真相、因果、平衡、责任',
+    reversed: '不公、逃避责任、偏见、失衡',
+    uprightDeep: '因果法则正在运作。你过去种下的种子，现在正结出果实。如果你一直行走在正道上，公正的回报即将到来。这也是做出公正决定的时刻，用理性和良知来权衡每一个选择。',
+    reversedWarning: '你可能正在逃避应承担的责任，或者感受到了不公正的对待。审视自己是否带着偏见在看待事物，同时也要有勇气为自己的权益发声。',
+    description: '正义牌代表因果法则与公平裁决，是真相与平衡的守护者。',
+  },
+  {
+    id: 12, name: '倒吊人', nameEn: 'The Hanged Man', arcana: 'major',
+    image: `${IMG_BASE}/m12.jpg`,
+    visualDescription: '一个人被一只脚倒挂在T形木架上，另一只腿弯曲成数字4的形状。他的头部散发着金色光环，面部表情出奇地平静而安详。',
+    upright: '牺牲、放手、新视角、暂停、顿悟',
+    reversed: '拖延、抗拒、无谓牺牲、自我折磨',
+    uprightDeep: '有时候，暂停和放手比拼命向前更需要勇气。倒转你的视角，你会看到截然不同的风景。这段等待并非浪费，而是在酝酿更深层的领悟。信任这个过程，答案正在形成。',
+    reversedWarning: '你可能在做无谓的牺牲，或者固执地拒绝改变视角。拖延和自我怜悯不会带来任何进展。问问自己：你是在真正地等待觉悟，还是只是在逃避行动？',
+    description: '倒吊人以全新的角度看世界，在主动的放手与臣服中获得了超越性的领悟。',
+  },
+  {
+    id: 13, name: '死神', nameEn: 'Death', arcana: 'major',
+    image: `${IMG_BASE}/m13.jpg`,
+    visualDescription: '一位骑着白马的骷髅骑士手持黑色旗帜，旗上绘有白色五瓣玫瑰。国王倒在他面前，主教在祈祷，少女跪地回避，孩子天真地献上花束。远方是日出。',
+    upright: '结束、转变、新生、蜕变、释放',
+    reversed: '抗拒改变、停滞、恐惧结束、执念',
+    uprightDeep: '一个重要的章节正在结束，而新的篇章正等待着你翻开。死神并不意味着终结，而是深刻的蜕变。放下已经不再服务于你的一切——旧的信念、习惯、关系——为新生腾出空间。',
+    reversedWarning: '你正顽固地抓住过去不放，害怕未知的改变。但拒绝必然的结束只会让痛苦延续更久。问问自己：你紧握不放的，究竟是爱，还是恐惧？',
+    description: '死神并非终结的使者，而是深刻蜕变与重生的催化剂。旧的必须死去，新的才能诞生。',
+  },
+  {
+    id: 14, name: '节制', nameEn: 'Temperance', arcana: 'major',
+    image: `${IMG_BASE}/m14.jpg`,
+    visualDescription: '一位天使一脚踏在水中，一脚站在陆地上，将水从一个杯子缓缓倒入另一个杯子。她胸前有一个三角形标记，身后是一条通往光芒四射的王冠的小径。',
+    upright: '平衡、耐心、和谐、中庸、疗愈',
+    reversed: '失衡、过度、不耐烦、缺乏节制',
+    uprightDeep: '在对立面之间找到完美的平衡点，这就是节制的艺术。不急不躁，不偏不倚，让一切自然流动与融合。你正在经历一个疗愈与整合的过程，耐心是此刻最强大的力量。',
+    reversedWarning: '你的生活可能正处于某种失衡状态——工作与生活、给予与接受、理性与感性之间的天平倾斜了。过度或不足都是问题所在，寻找你的中庸之道。',
+    description: '节制天使在水陆之间、两杯之间调和能量，象征着和谐、平衡与灵性的炼金术。',
+  },
+  {
+    id: 15, name: '恶魔', nameEn: 'The Devil', arcana: 'major',
+    image: `${IMG_BASE}/m15.jpg`,
+    visualDescription: '一个半人半兽的恶魔端坐在黑暗的基座上，基座上锁着一对赤裸男女。他们脖子上的锁链松松垮垮，似乎随时可以挣脱。恶魔举起右手，掌心有倒五芒星。',
+    upright: '束缚、诱惑、物质执着、阴暗面、依赖',
+    reversed: '释放、觉醒、打破枷锁、重获自由',
+    uprightDeep: '审视那些你以为无法挣脱的束缚——它们真的那么牢固吗？恶魔揭示的是我们自愿戴上的枷锁：对物质的贪恋、对关系的依赖、对恐惧的臣服。觉察是解脱的第一步。',
+    reversedWarning: '逆位的恶魔是一个积极的信号——你正在觉醒，开始打破旧有的束缚模式。但这个过程可能并不舒适，因为你需要直面长期回避的阴暗面。坚持下去，自由就在前方。',
+    description: '恶魔牌揭示我们内心的枷锁与阴暗面，但仔细看——那些锁链其实随时可以摘下。',
+  },
+  {
+    id: 16, name: '塔', nameEn: 'The Tower', arcana: 'major',
+    image: `${IMG_BASE}/m16.jpg`,
+    visualDescription: '一座高塔被闪电击中，塔顶的王冠被击落，火焰从窗户中喷出。两个人从塔顶坠落，背景是漆黑的天空和倾泻而下的火焰碎片。',
+    upright: '剧变、觉醒、突破、真相揭露、解放',
+    reversed: '逃避灾难、恐惧变化、个人变革、抵抗',
+    uprightDeep: '建立在虚假基础上的一切正在崩塌，这虽然痛苦，却是必要的净化。闪电般的觉醒会让你看清长久以来的幻象。不要试图修补已经坍塌的结构，在废墟中你将找到重建真实生活的契机。',
+    reversedWarning: '你可能正在竭力避免一场必然的崩塌，或者内在的变革正以更温和但持续的方式发生。无论如何，旧的结构终将瓦解。你越是抵抗，过程就越痛苦。',
+    description: '高塔被雷电击毁，象征着虚假结构的崩溃和随之而来的残酷而必要的觉醒。',
+  },
+  {
+    id: 17, name: '星星', nameEn: 'The Star', arcana: 'major',
+    image: `${IMG_BASE}/m17.jpg`,
+    visualDescription: '一位裸体女子跪在水边，一只脚踏入水中，一只脚踏在陆地上。她将两个水壶中的水分别倒入池塘和大地。天空中有一颗巨大的八芒星和七颗小星星。',
+    upright: '希望、灵感、宁静、治愈、信心',
+    reversed: '失望、缺乏信心、脱离灵性、绝望',
+    uprightDeep: '经历风暴之后，星光为你带来治愈与希望。这是一个灵感涌动、灵魂被滋养的时期。敞开心扉，接收宇宙给你的祝福和指引。相信你的愿望正在宇宙中酝酿，保持信心和开放。',
+    reversedWarning: '你可能正经历希望的消退，感觉与灵性和灵感断了连接。这种黑暗是暂时的。尝试回到最简单的事物中寻找光芒——自然、艺术、冥想。星光一直都在，只是暂时被乌云遮住了。',
+    description: '星星是暴风雨后的宁静与希望，象征灵魂的治愈和对未来的深刻信心。',
+  },
+  {
+    id: 18, name: '月亮', nameEn: 'The Moon', arcana: 'major',
+    image: `${IMG_BASE}/m18.jpg`,
+    visualDescription: '一轮满月高悬夜空，月中有人脸侧影。两座塔楼之间，一条蜿蜒小路伸向远方。一只狗和一只狼对月嚎叫，水池中有一只龙虾正从水中爬出。',
+    upright: '幻觉、直觉、潜意识、恐惧、迷雾',
+    reversed: '困惑消散、恢复清明、释放恐惧、真相',
+    uprightDeep: '事物并不像表面看起来那样。月光下万物扭曲变形，你的恐惧和想象力可能正在制造幻象。不要仓促做决定，让直觉引导你穿过迷雾。允许不确定性存在，真相终会在黎明时分清晰。',
+    reversedWarning: '好消息是迷雾正在散去，你开始看清事物的本来面目。但这个过程可能伴随着幻灭的痛苦——那些你曾以为真实的东西，原来只是月光下的幻影。接受真相，继续前行。',
+    description: '月亮照耀着潜意识的深渊，在真实与幻觉之间，引导我们穿越内心最深的恐惧。',
+  },
+  {
+    id: 19, name: '太阳', nameEn: 'The Sun', arcana: 'major',
+    image: `${IMG_BASE}/m19.jpg`,
+    visualDescription: '一轮光芒四射的太阳照耀大地，一个赤裸的孩子骑在白马上，手持红色旗帜，面带灿烂笑容。背后是一堵石墙，墙后盛开着向日葵。',
+    upright: '快乐、成功、活力、光明、天真',
+    reversed: '暂时挫折、过度乐观、内在小孩受伤',
+    uprightDeep: '阳光普照的时刻到来了！这是整副牌中最积极的牌之一。一切都在向好的方向发展，喜悦和成功自然地流向你。像孩子一样纯真地拥抱生活的美好，让你的光芒自由地照耀他人。',
+    reversedWarning: '太阳暂时被云层遮蔽，但它依然在那里。你可能过度乐观而忽视了潜在问题，或者内心的小孩正因某些童年伤痛而无法真正快乐。给自己一些时间和温柔，阳光很快会再次穿透云层。',
+    description: '太阳是纯粹的光明与喜悦，照亮一切阴暗角落，带来温暖、成功和生命力。',
+  },
+  {
+    id: 20, name: '审判', nameEn: 'Judgement', arcana: 'major',
+    image: `${IMG_BASE}/m20.jpg`,
+    visualDescription: '天使加百列从云端吹响号角，棺材中的男女和孩子听到号角声纷纷起身，张开双臂迎接光芒。背景是连绵的山脉和灰色天空。',
+    upright: '重生、觉醒、召唤、审视、蜕变',
+    reversed: '自我怀疑、拒绝召唤、逃避审视',
+    uprightDeep: '灵魂深处的号角已经吹响，召唤你走向更高版本的自己。这是一个回顾过去、审视选择、重新定义自我的关键时刻。放下过往的遗憾和评判，以更高的视角来理解你生命中的每一段经历。',
+    reversedWarning: '你可能正在逃避灵魂的召唤，或者被过度的自我批判所困扰。不愿面对过去的选择会让你无法前进。宽恕自己，宽恕他人，唯有如此才能真正重生。',
+    description: '号角吹响，灵魂被唤醒。审判牌象征着最终的清算、觉醒和灵性的重生。',
+  },
+  {
+    id: 21, name: '世界', nameEn: 'The World', arcana: 'major',
+    image: `${IMG_BASE}/m21.jpg`,
+    visualDescription: '一位女子在月桂花环中翩翩起舞，双手各持一根魔杖。花环四角分别是人、鹰、狮和牛的形象，她身披紫色丝带，表情圆满而祥和。',
+    upright: '完成、整合、成就、圆满、世界性视野',
+    reversed: '未完成、缺乏闭合、延迟、差一步之遥',
+    uprightDeep: '你正站在一个伟大循环的终点，所有的努力、学习和成长在此刻汇聚为圆满的成就。尽情庆祝吧！同时知道，每一个终点都是新起点的前奏。带着你获得的智慧，准备迎接下一轮的旅程。',
+    reversedWarning: '你可能感觉差一步就能到达终点，但某些未完成的课题仍在阻碍你。不要急于跳过这最后的阶段，回头审视是否还有遗漏的环节需要补上。圆满需要耐心。',
+    description: '世界牌是大阿尔卡纳的终章，象征一个完整循环的圆满结束和新旅程的启程。',
+  },
 ];
 
-const suits = [
-  { name: '权杖', nameEn: 'Wands', element: '火' },
-  { name: '圣杯', nameEn: 'Cups', element: '水' },
-  { name: '宝剑', nameEn: 'Swords', element: '风' },
-  { name: '星币', nameEn: 'Pentacles', element: '土' },
+// Suit mapping for image file prefixes
+const suitConfig = [
+  { name: '权杖', nameEn: 'Wands', element: '火', prefix: 'w' },
+  { name: '圣杯', nameEn: 'Cups', element: '水', prefix: 'c' },
+  { name: '宝剑', nameEn: 'Swords', element: '风', prefix: 's' },
+  { name: '星币', nameEn: 'Pentacles', element: '土', prefix: 'p' },
 ];
 
-const courtCards = ['侍从', '骑士', '王后', '国王'];
-const courtCardsEn = ['Page', 'Knight', 'Queen', 'King'];
+const numberLabels = ['', 'Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+const numberLabelsCn = ['', '王牌', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+const courtCards = [
+  { en: 'Page', cn: '侍从', num: 11 },
+  { en: 'Knight', cn: '骑士', num: 12 },
+  { en: 'Queen', cn: '王后', num: 13 },
+  { en: 'King', cn: '国王', num: 14 },
+];
 
-const numberMeanings: Record<string, { upright: string; reversed: string }> = {
-  'Ace': { upright: '新机遇、潜力', reversed: '错失机会、延迟' },
-  '2': { upright: '平衡、选择、合作', reversed: '失衡、犹豫不决' },
-  '3': { upright: '成长、创造、团队', reversed: '过度扩张、缺乏规划' },
-  '4': { upright: '稳定、基础、休息', reversed: '不安、停滞' },
-  '5': { upright: '挑战、冲突、变化', reversed: '和解、恢复' },
-  '6': { upright: '和谐、回忆、慷慨', reversed: '不平等、执着过去' },
-  '7': { upright: '反思、评估、信念', reversed: '缺乏远见、分散' },
-  '8': { upright: '行动、速度、力量', reversed: '阻碍、急躁' },
-  '9': { upright: '即将完成、坚韧', reversed: '疲惫、未尽之事' },
-  '10': { upright: '完成、圆满、传承', reversed: '过度负担、抗拒结束' },
-  'Page': { upright: '学习、好奇、消息', reversed: '不成熟、犹豫' },
-  'Knight': { upright: '行动、追求、热情', reversed: '冲动、鲁莽' },
-  'Queen': { upright: '滋养、直觉、成熟', reversed: '情绪化、过度保护' },
-  'King': { upright: '掌控、智慧、领导', reversed: '专横、固执' },
+interface MinorMeaning {
+  upright: string;
+  reversed: string;
+  uprightDeep: string;
+  reversedWarning: string;
+  visual: string;
+}
+
+const minorMeanings: Record<string, Record<string, MinorMeaning>> = {
+  Wands: {
+    Ace: { upright: '灵感爆发、新机遇、创造力', reversed: '延迟、缺乏动力、错失机会', uprightDeep: '创造力的火种已经点燃，一个充满激情的新开始正在向你招手。抓住这股原始的创造能量，让它引领你走向未知的可能。', reversedWarning: '灵感之火暂时熄灭，你可能感到缺乏方向和动力。不要强迫创造力，给自己空间休息，火焰会重新燃起。', visual: '一只手从云中伸出，紧握一根萌芽的权杖，周围散落着飘飞的叶子。' },
+    '2': { upright: '规划、决策、远见', reversed: '犹豫、缺乏方向、恐惧未知', uprightDeep: '你站在十字路口，手握世界地图。现在是制定长远计划的时候，大胆设想你的未来，然后迈出第一步。', reversedWarning: '选择困难症正在困扰你。过度分析会让你错失良机，有时候一个不完美的决定也好过没有决定。', visual: '一个人手持地球仪站在城堡上，俯瞰大海与远方的山脉。' },
+    '3': { upright: '扩张、远见成果、领导力', reversed: '过度扩张、缺乏远见、延迟', uprightDeep: '你的计划正在开花结果，视野在不断扩大。这是一个商业或创意项目开始显现成效的时期，保持你的远见和领导力。', reversedWarning: '你可能试图同时追逐太多目标而分散了力量，或者项目进展不如预期。重新聚焦核心目标。', visual: '一个人站在高处望向远方，三根权杖插在身旁，商船在海上航行。' },
+    '4': { upright: '庆祝、和谐、家庭幸福', reversed: '缺乏归属感、不稳定、过渡期', uprightDeep: '这是一个庆祝和享受成果的时刻，你建立的基础正在为你带来稳定与和谐。珍惜当下的幸福，与重要的人分享喜悦。', reversedWarning: '你可能正经历一段不稳定的过渡期，缺乏根基和归属感。寻找能让你感到安全和被接纳的社群或环境。', visual: '两对人在花环装饰的拱门前欢庆，远处是城堡，气氛欢快喜庆。' },
+    '5': { upright: '冲突、竞争、紧张局势', reversed: '和解、避免冲突、内在冲突', uprightDeep: '你正处于一个充满竞争和冲突的环境中。不要逃避这些挑战，它们是成长的催化剂。学会在竞争中保持风度。', reversedWarning: '你可能在逃避必要的冲突，或者内心的矛盾让你感到疲惫。有时候，直面分歧比回避更能带来解决。', visual: '五个人各执权杖混战一团，场面混乱但没有人真正受伤。' },
+    '6': { upright: '胜利、认可、成就、荣耀', reversed: '傲慢、延迟的认可、自我怀疑', uprightDeep: '你的努力正在获得应有的认可和赞赏。这是属于你的荣耀时刻，骄傲地接受它。你的领导力和毅力为你赢得了胜利。', reversedWarning: '小心胜利后的傲慢，或者因未能获得期望的认可而灰心。真正的成就感应该来自内心，而非外界的掌声。', visual: '一位勇士头戴月桂冠骑在马上，旁边的人高举权杖致敬欢呼。' },
+    '7': { upright: '坚守立场、勇气、挑战', reversed: '被压倒、退让、放弃', uprightDeep: '你正面临一场需要勇气和坚持的挑战。虽然形势可能看起来不利，但你拥有捍卫信念的力量。不要退缩，坚守你的阵地。', reversedWarning: '持续的压力让你疲惫不堪，你可能考虑放弃。评估一下：这场战斗值得继续吗？有时候战略性撤退也是一种智慧。', visual: '一个人站在高处，用一根权杖抵御下方六根权杖的进攻。' },
+    '8': { upright: '快速行动、飞速发展、消息到来', reversed: '延迟、急躁、方向不清', uprightDeep: '事情正以飞快的速度发展，好消息即将到来。保持灵活和开放，抓住每一个转瞬即逝的机会。行动的时机就是现在。', reversedWarning: '你可能因急躁而做出仓促的决定，或者预期的进展迟迟未到。放慢脚步，确保方向正确比速度更重要。', visual: '八根权杖如箭矢般飞过天空，穿越开阔的原野，暗示快速的移动和变化。' },
+    '9': { upright: '韧性、坚持、最后的考验', reversed: '疲惫不堪、不堪重负、固执', uprightDeep: '你已经走过了漫长的旅程，终点就在眼前。虽然疲惫，但不要在最后关头放弃。这是意志力的最终考验，坚持住，黎明即将到来。', reversedWarning: '你可能已经精疲力竭，背负了太多不该背负的重担。学会寻求帮助并不是软弱，是时候放下一些不必要的负担了。', visual: '一个受伤的人拄着权杖站立，身后是八根已完成的权杖，表情坚毅但疲惫。' },
+    '10': { upright: '过度负担、责任沉重、筋疲力尽', reversed: '释放重担、委派任务、轻装前行', uprightDeep: '你可能背负了太多的责任和任务，几乎要被压垮。审视一下哪些负担是你真正需要承担的，学会分担和放下，否则你会被重量压倒。', reversedWarning: '你正在学习放下过重的负担，或者终于意识到不需要独自承担一切。委派任务，寻求帮助，让自己轻装前行。', visual: '一个人弯腰背负十根沉重的权杖，步履蹒跚地走向远处的城镇。' },
+    Page: { upright: '热情、探索、好消息、灵感', reversed: '不成熟、急躁、延迟的消息', uprightDeep: '一股充满激情的新能量正在你的生活中萌芽。保持好奇心和开放态度，勇敢地探索新的可能性。好消息可能即将到来。', reversedWarning: '你的热情可能过于冲动而缺乏深思。一个好的想法需要培育和耐心，不要让急躁毁了一颗好种子。', visual: '一位年轻人手持权杖站在沙漠中，仰望着杖端萌发的新芽，充满期待。' },
+    Knight: { upright: '行动力、冒险、热情追求', reversed: '冲动、鲁莽、缺乏耐心', uprightDeep: '你正全速前进地追逐目标，热情和行动力是你最大的武器。趁着这股火热的势头，大胆突破，但记得保持方向感。', reversedWarning: '你的行动力可能变成了鲁莽，热情变成了急躁。在全速冲锋之前，确认你的方向是对的，否则可能越跑越远。', visual: '一位骑士骑着烈马飞奔，手持权杖，披风在风中猎猎作响。' },
+    Queen: { upright: '自信、温暖、创造力、独立', reversed: '嫉妒、控制欲、情绪化', uprightDeep: '你散发着温暖的自信和创造力的光芒。用你的热情去感染和激励他人，你的存在本身就是一种力量。相信自己的直觉和判断。', reversedWarning: '你的激情可能变成了控制欲或嫉妒心。或许你感到自己的创造力被压抑。重新连接你内在的火焰，用建设性的方式表达它。', visual: '王后自信地坐在宝座上，一手持向日葵，一手持权杖，旁边有一只黑猫。' },
+    King: { upright: '领导力、远见、企业家精神、魅力', reversed: '专横、固执、期望过高', uprightDeep: '你拥有将愿景转化为现实的领导力和魅力。像一位开明的君王，用你的远见和激情引领团队走向成功。你的决断力现在至关重要。', reversedWarning: '你的领导风格可能变得过于专横或固执。对他人抱有不切实际的期望只会带来失望。软化你的姿态，倾听不同的声音。', visual: '国王端坐宝座，一手持杖，目光坚定地望向远方，身旁有一只蜥蜴象征火元素。' },
+  },
+  Cups: {
+    Ace: { upright: '新的感情、灵性觉醒、创意灵感', reversed: '情感封闭、空虚、错失爱的机会', uprightDeep: '一份新的感情或灵性体验正在向你涌来。打开心扉，接受这份来自宇宙的礼物。无论是爱情、友情还是创意灵感，都值得你全心拥抱。', reversedWarning: '你可能因为过去的伤痛而封闭了自己的心。拒绝接受新的感情不会让你更安全，只会让你更孤独。是时候疗愈旧伤了。', visual: '一只手从云中伸出，托起一个溢出清水的圣杯，一只鸽子将圣饼放入杯中。' },
+    '2': { upright: '合作、吸引力、灵魂伴侣', reversed: '关系失衡、沟通不畅', uprightDeep: '一段深刻的连接正在形成，可能是爱情，也可能是深厚的友谊或合作关系。这种吸引力是双向的，彼此的灵魂在对话。', reversedWarning: '关系中的天平可能已经倾斜，付出和接受不再平衡。真诚的沟通是修复关系的第一步。', visual: '一男一女面对面举杯，两人之间有一个带翅膀的狮子头和缠绕的蛇。' },
+    '3': { upright: '庆祝、友谊、社交、欢乐', reversed: '过度放纵、社交疲劳、孤立', uprightDeep: '这是一个值得庆祝的时刻！与朋友们一起举杯，分享喜悦和丰收。人际连接和社交活动为你的生活带来了色彩和温暖。', reversedWarning: '你可能社交过度而感到疲惫，或者在人群中反而感到更孤独。质量比数量更重要，深度比广度更有意义。', visual: '三位女子举杯欢庆，头戴花冠，周围是丰收的果实和花朵。' },
+    '4': { upright: '冥想、重新评估、不满足', reversed: '行动起来、接受机会、感恩', uprightDeep: '你可能对现状感到不满或倦怠，即使客观来看一切都很好。这是一个内省的时期，重新评估什么真正重要。但小心不要只看到缺失而忽视已有的。', reversedWarning: '你正从消极的冥想中走出来，开始看到新的可能性。一个此前被你忽视的机会正在呼唤你，睁开眼睛去发现它。', visual: '一个人坐在树下冥想，面前有三个圣杯，旁边一只手从云中递出第四个。' },
+    '5': { upright: '失去、悲伤、遗憾、部分损失', reversed: '接受、前进、看到光明面', uprightDeep: '你正经历一段失去和悲伤的时期，但请注意——不是所有东西都失去了。在为逝去的事物悲伤的同时，别忘了看看还剩下什么。希望仍在。', reversedWarning: '你正在从悲伤中恢复，开始接受已经发生的事实。转身看看身后那些仍在的东西，它们是你重新开始的基础。', visual: '一个黑色斗篷的人低头注视着三个打翻的圣杯，身后还有两个直立的圣杯。' },
+    '6': { upright: '怀旧、童年回忆、天真、善意', reversed: '活在过去、不切实际、放不下', uprightDeep: '过去的美好回忆涌上心头，童年的纯真和安全感温暖着你。适当的怀旧是治愈的良药，它提醒你什么是真正重要的。', reversedWarning: '你可能过于沉浸在对过去的回忆中，而忽视了当下的生活。过去是温暖的港湾，但不是永久的居所。面向前方。', visual: '一个男孩将一杯鲜花递给一个女孩，周围是六个盛满花朵的圣杯，场景温馨祥和。' },
+    '7': { upright: '幻想、选择困难、迷惑、白日梦', reversed: '清醒、做出选择、脚踏实地', uprightDeep: '面前有太多诱人的选择和可能性，让你眼花缭乱。但要小心——有些可能只是幻象。在行动之前，分辨清楚哪些是真实的机会，哪些是美丽的陷阱。', reversedWarning: '你正从幻想中清醒过来，开始脚踏实地地面对现实。虽然幻灭可能有些痛苦，但清醒的选择比美丽的幻想更有价值。', visual: '一个人面对着七个浮在云中的圣杯，杯中呈现各种奇异的景象，如城堡、珠宝、花环和龙。' },
+    '8': { upright: '离开、放弃、寻找更深层意义', reversed: '害怕改变、留恋过去、犹豫', uprightDeep: '你内心深处知道：是时候离开了。虽然身后留下的东西曾让你满足，但你的灵魂在呼唤更深层的意义。这需要勇气，但你的成长要求你踏上这段新旅程。', reversedWarning: '你知道应该前进，但对已知事物的留恋让你犹豫不决。问问自己：留下是因为真正的满足，还是因为对未知的恐惧？', visual: '一个人在月光下转身离开八个整齐排列的圣杯，朝着山间小路走去。' },
+    '9': { upright: '满足、愿望实现、幸福、丰足', reversed: '不满足、贪婪、物质过度', uprightDeep: '你的愿望正在实现，生活中的各方面都呈现出令人满足的状态。这是一张"许愿牌"——表明你的心愿有很大的可能性成真。享受这份丰足。', reversedWarning: '你可能陷入了"永远不够"的心态。即使拥有很多，你仍感到不满足。审视你的内心：真正缺失的是什么？是物质，还是内心的平静？', visual: '一个人得意地坐着，身后是九个如扇形排列的圣杯。他双臂交叉，面带满足微笑。' },
+    '10': { upright: '幸福美满、家庭和谐、情感丰盈', reversed: '家庭不和、价值观冲突、破碎', uprightDeep: '情感上的圆满时刻到来了。家庭和谐，关系甜蜜，你被爱包围着。彩虹出现在天空中，象征着承诺和祝福。珍惜这份来之不易的幸福。', reversedWarning: '家庭或亲密关系中可能出现了裂痕。美好的表象下隐藏着未被处理的问题。不要忽视这些信号，及时沟通和修复。', visual: '一对拥抱的夫妻望着远处的彩虹，孩子们在旁边嬉戏，天空中有十个圣杯排成彩虹。' },
+    Page: { upright: '浪漫的消息、创意灵感、敏感', reversed: '情感不成熟、白日梦、逃避', uprightDeep: '一个浪漫或创意的消息即将到来。保持你的敏感和开放，让直觉引导你。你对美和情感的感知力现在特别敏锐。', reversedWarning: '你可能沉溺于不切实际的幻想中，或者在情感上表现得过于天真。分清浪漫与现实的边界很重要。', visual: '一位年轻人凝视着杯中游动的小鱼，表情充满好奇和柔情。' },
+    Knight: { upright: '浪漫追求、理想主义、魅力', reversed: '虚假承诺、善变、情绪化', uprightDeep: '你正被一股浪漫和理想主义的力量驱动，勇敢地追求心中所爱。带着骑士精神去表达你的情感，真诚是你最大的魅力。', reversedWarning: '小心那些听起来太美好的承诺，无论是你给出的还是接收的。情绪的潮水来得快去得也快，确保你的行动基于真实的感情。', visual: '一位骑士骑着白马缓缓前行，手持圣杯，表情温柔而坚定。' },
+    Queen: { upright: '慈爱、直觉、情感智慧、滋养', reversed: '情绪化、过度敏感、依赖他人', uprightDeep: '你正以深沉的情感智慧和慈爱滋养着周围的人。相信你的直觉，它现在是你最可靠的指南针。你的共情能力是一种珍贵的天赋。', reversedWarning: '你可能因为过度为他人着想而忽略了自己的需求。情感的海洋中也需要设定边界，先照顾好自己，才能更好地关爱他人。', visual: '王后端坐在水边的宝座上，手持华丽的圣杯凝视。宝座装饰着小天使和贝壳。' },
+    King: { upright: '情感成熟、外交、平衡、智慧', reversed: '情绪压抑、操控、冷漠', uprightDeep: '你正以成熟的情感智慧驾驭着复杂的人际关系。用外交般的手腕来平衡各方利益，在柔情与理性之间保持完美的平衡。', reversedWarning: '你可能在压抑自己的情感，用冷漠来伪装脆弱，或者在用情感操控他人。真正的力量在于真诚地表达内心。', visual: '国王端坐在海上的宝座，一手持杯，一手持权杖，身边波涛起伏却保持平静。' },
+  },
+  Swords: {
+    Ace: { upright: '真相、清晰、突破、新想法', reversed: '困惑、误解、混乱', uprightDeep: '一个切割一切迷雾的清晰洞见正在降临。用这把精神之剑斩断束缚你的幻象和谎言，真相是你最强大的武器。', reversedWarning: '你可能被错误的信息或混乱的思绪所困扰。在做重要决定之前，先让头脑恢复清明。', visual: '一只手从云中伸出，紧握一把闪亮的双刃剑，剑尖穿过一顶王冠。' },
+    '2': { upright: '艰难选择、僵局、逃避、平衡', reversed: '做出决定、面对真相、信息过载', uprightDeep: '你被困在两个选项之间，用蒙着眼睛来逃避决定。但逃避不是解决方案。摘下蒙眼布，用心而非恐惧来做出选择。', reversedWarning: '你正在被迫面对一直逃避的决定。虽然不舒服，但这是必要的。信息可能会让你不安，但真相终究好过幻想。', visual: '一位蒙着眼的女子双手各持一把剑，身后是大海和弯月，保持着微妙的平衡。' },
+    '3': { upright: '心碎、悲伤、分离、背叛', reversed: '疗愈、释放痛苦、宽恕', uprightDeep: '你正经历深刻的心痛。这种伤痛虽然难以承受，但它也是净化和成长的过程。允许自己充分感受这份痛苦，然后开始疗愈。', reversedWarning: '你正在从心碎中恢复，伤口开始愈合。宽恕——无论是对他人还是对自己——是完成疗愈的最后一步。', visual: '三把宝剑刺穿一颗鲜红的心，背景是暴风雨和灰色的天空。' },
+    '4': { upright: '休息、恢复、冥想、暂停', reversed: '不安、急躁、需要休息', uprightDeep: '你的身心都需要休息和恢复。放下战斗，让自己在安全的空间里充分休息。这不是懒惰，而是为下一场挑战储备能量。', reversedWarning: '你可能无法让自己停下来，即使身体和精神都在发出警告。强制自己休息比崩溃后被迫休息要好得多。', visual: '一尊石像躺在教堂中，三把剑挂在墙上，一把放在身旁，双手合十，表情安详。' },
+    '5': { upright: '冲突、欺骗、输赢、不正当手段', reversed: '和解、学会认输、挽回名誉', uprightDeep: '你可能正卷入一场不光彩的冲突中。即使你能赢，也要考虑代价——以不正当手段获得的胜利终究是空洞的。选择你的战斗。', reversedWarning: '一场冲突正在走向尾声，可能是通过和解或认输。无论结果如何，从中学到的教训比输赢更重要。', visual: '一个人得意地捡起三把剑，两个人垂头丧气地走开。天空阴沉，暗示不光彩的胜利。' },
+    '6': { upright: '过渡、远行、走出困境', reversed: '停滞、无法离开、延迟', uprightDeep: '你正从一个困难的阶段过渡到更平静的水域。虽然旅途还未结束，但最艰难的部分已经过去。保持信心，前方的水面会越来越平静。', reversedWarning: '你可能感觉被困住了，无法离开一个不健康的环境或状态。寻找帮助，有时候我们需要别人的船来渡过难关。', visual: '一位摆渡人撑着满载宝剑的小船，带着一位母亲和孩子穿越平静的水面。' },
+    '7': { upright: '策略、偷窃、欺骗、狡猾', reversed: '自欺、被揭穿、需要新策略', uprightDeep: '你可能需要运用策略和智慧来应对当前的处境。但要警惕自己的手段是否越了道德的界限。聪明不等于狡诈。', reversedWarning: '你的策略可能不够有效，或者你一直在自欺欺人。是时候正视现实，采用更诚实直接的方法了。', visual: '一个人偷偷搬走五把剑，留下两把，表情鬼鬼祟祟地回头看。' },
+    '8': { upright: '束缚、受限、自我设限、无力感', reversed: '解脱、重获力量、新视角', uprightDeep: '你感到被环境或自己的思维所束缚。但仔细看——那些束缚可能并不像你想象的那么牢固。限制你的往往是自己的信念而非真实的铁链。', reversedWarning: '你正在从自我设限中解脱出来，重新获得行动的力量。移开蒙眼布，你会发现出路一直都在。', visual: '一位蒙眼被绑的女子站在泥泞中，被八把宝剑围绕，远处的城堡似乎暗示出路。' },
+    '9': { upright: '焦虑、噩梦、深夜忧虑、恐惧', reversed: '走出焦虑、希望、释放恐惧', uprightDeep: '深夜的恐惧和焦虑正在折磨你。那些在黑暗中被放大的忧虑，很多在阳光下看来并没有那么可怕。善待自己，寻求支持。', reversedWarning: '你正在学会与焦虑和平共处，或者终于从长期的恐惧中走了出来。黎明的光芒正在驱散噩梦。', visual: '一个人坐在床上，双手掩面，身后的墙上挂着九把宝剑。夜色深沉。' },
+    '10': { upright: '背叛、崩溃、触底、结束', reversed: '恢复、重建、最坏已过', uprightDeep: '你可能正经历一个极其痛苦的低谷——背叛、崩溃或彻底的结束。这是最黑暗的时刻，但黎明总在最深的黑暗之后。这个结束虽然残酷，却为真正的新生铺平了道路。', reversedWarning: '最坏的阶段已经过去了。虽然恢复的道路还很长，但你已经触底反弹。慢慢来，每一步恢复都值得庆祝。', visual: '一个人倒在地上，背上插着十把宝剑，远处是黑暗的天空，但地平线上有一丝光亮。' },
+    Page: { upright: '好奇心、新想法、警惕、真相', reversed: '八卦、缺乏计划、冷言冷语', uprightDeep: '一个新的想法或真相正在浮现。保持警觉和好奇，用敏锐的观察力去发现被忽视的细节。知识就是力量。', reversedWarning: '你可能在用言语伤人，或者陷入了无意义的八卦中。把你敏锐的头脑用在更有建设性的地方。', visual: '一位年轻人高举宝剑站在风中，身后是翻涌的云海，表情警觉而好奇。' },
+    Knight: { upright: '果断、直率、勇往直前、智识', reversed: '冲动、好斗、缺乏同理心', uprightDeep: '你正以极快的速度向目标冲刺，思维敏捷，行动果断。你的直率和智慧是强大的武器，但记得留有余地。', reversedWarning: '你可能过于好斗或尖锐，言语如剑般伤人。勇气和鲁莽只有一线之隔，在行动前先考虑后果。', visual: '一位骑士驱马飞驰，高举利剑，马蹄下风起云涌，充满战斗气息。' },
+    Queen: { upright: '独立、清晰思维、直接、公正', reversed: '冷酷、尖刻、情感压抑', uprightDeep: '你拥有穿透假象的清晰思维和毫不妥协的公正感。独立而理性，你能做出最客观的判断。用你的智慧帮助他人看清真相。', reversedWarning: '你的理性可能变成了冷酷，直率变成了尖刻。头脑的力量不应该被用来伤害他人或压抑自己的情感。', visual: '王后端坐宝座，一手持剑指天，一手抬起掌心朝外，表情严肃而公正。' },
+    King: { upright: '权威、真理、智识力量、清晰判断', reversed: '暴政、操控、滥用权力', uprightDeep: '你正以清晰的智慧和权威来主导局面。像一位公正的法官，用真理之剑切断一切谎言和混乱。你的判断力现在是最强的。', reversedWarning: '权力可能正在腐蚀你的判断力。你是在用智慧服务真理，还是在用权威来压制异见？审视你运用力量的方式。', visual: '国王端坐宝座高举利剑，身后是蝴蝶和天使的雕刻。目光锐利，不怒自威。' },
+  },
+  Pentacles: {
+    Ace: { upright: '新的财务机会、繁荣、物质基础', reversed: '财务损失、错失良机、贪婪', uprightDeep: '一个新的物质或财务机会正在向你走来。这可能是新工作、新投资或新的收入来源。用双手紧紧抓住它，这是宇宙对你努力的回报。', reversedWarning: '你可能正错过一个重要的财务机会，或者过于执着于金钱而忽视了其他维度的丰盛。财富是工具，不是目标。', visual: '一只手从云中伸出，托起一枚金光闪闪的五芒星币，下方是绿意盎然的花园。' },
+    '2': { upright: '平衡、灵活、时间管理、多任务', reversed: '失衡、过度忙碌、失去重点', uprightDeep: '你正在同时处理多个事务，需要出色的平衡能力。像杂技演员一样灵活地调整你的时间和精力分配，你能做到的。', reversedWarning: '你可能正在同时杂耍太多球，迟早会有一个掉下来。确定优先级，一些事情可以等待。', visual: '一个人在波涛中平衡两枚星币，远处有船只起伏，呈现出无限符号的姿态。' },
+    '3': { upright: '团队协作、技能、精通、认可', reversed: '缺乏团队精神、平庸、敷衍', uprightDeep: '你的技能和专业知识正在获得认可。与优秀的团队合作可以让你更上一层楼。精益求精的态度会为你带来卓越的成果。', reversedWarning: '你可能正在敷衍了事或缺乏对工作的热情。平庸是对才华的浪费，重新找到你对专业技艺的热爱。', visual: '一位工匠在教堂中雕刻，旁边有两位同伴，他们共同打造精美的建筑。三枚星币镶嵌在拱门上。' },
+    '4': { upright: '保守、控制、安全、吝啬', reversed: '慷慨、释放控制、过度消费', uprightDeep: '你正紧紧守护着你的资源，确保安全和稳定。适度的保守是明智的，但过度的控制和吝啬只会让你与丰盛隔绝。', reversedWarning: '你可能需要放松对金钱和资源的控制了。过度的吝啬和过度的挥霍一样是不平衡的表现。找到慷慨与谨慎之间的中道。', visual: '一个人紧紧怀抱着一枚星币，头上和脚下各有一枚，看起来非常紧张和守护。' },
+    '5': { upright: '困难、贫困、孤立、健康问题', reversed: '走出困境、找到帮助、恢复', uprightDeep: '你可能正经历物质或精神上的困难时期。但注意——教堂的窗户就在不远处，帮助和庇护就在附近。不要让骄傲阻止你寻求帮助。', reversedWarning: '最艰难的时期正在过去，你开始看到隧道尽头的光。接受帮助不是软弱，每个人都有需要他人的时候。', visual: '两个衣衫褴褛的人在雪中蹒跚，经过教堂明亮的窗户，五枚星币的图案出现在彩窗上。' },
+    '6': { upright: '慷慨、给予、施舍、财务平衡', reversed: '贪婪、债务、不平等', uprightDeep: '这是一个关于给予和接受之间平衡的时刻。如果你有能力，慷慨地分享你的丰盛。你给出的，终将以某种形式回到你身边。', reversedWarning: '资源分配可能不公平——你是给予过多还是过少？审视你与金钱和物质的关系，确保交换是健康和公平的。', visual: '一位富人手持天平，将金币分发给跪在地上的穷人，展现慈善与公正。' },
+    '7': { upright: '耕耘、耐心等待、长期投资', reversed: '缺乏耐心、急于求成、收益不佳', uprightDeep: '你已经播下了种子，现在需要耐心等待收获。长期投资——无论是金钱、技能还是关系——正在缓慢但稳定地成长。不要急于收割。', reversedWarning: '你可能对回报的速度感到焦虑。种子需要时间生长，频繁翻土只会损害根系。相信过程，耐心会带来丰收。', visual: '一个人倚靠在锄头上，望着灌木丛中缓慢成长的星币，表情既期待又焦虑。' },
+    '8': { upright: '勤奋、技艺精进、专注、学徒', reversed: '缺乏热情、完美主义、重复劳动', uprightDeep: '通过专注和勤奋的练习，你的技艺正在不断精进。这是一个学习和掌握新技能的绝佳时期。享受这个从新手到专家的成长过程。', reversedWarning: '你可能陷入了无意义的重复劳动，或者过度追求完美而忘了享受过程。工作应该带来成就感，如果没有，是时候重新审视方向了。', visual: '一个人在工作台前认真雕刻星币，已完成的作品整齐排列，展现出精湛技艺。' },
+    '9': { upright: '丰盛、独立、自给自足、享受', reversed: '过度物质、孤独的富足、虚荣', uprightDeep: '你已经建立了稳固的物质基础，可以独立而优雅地享受生活的丰盛。你的勤奋和智慧带来了理想的收获，现在是享受成果的时候。', reversedWarning: '物质的丰盛是否填补了你内心的空虚？被美好事物环绕的你，可能正在经历孤独的富足。真正的满足感不能只靠金钱来获得。', visual: '一位衣着华丽的女人站在美丽的花园中，一只鹰停在她手上，身旁有九枚星币环绕。' },
+    '10': { upright: '财富传承、家族、遗产、长久成功', reversed: '家族纷争、遗产问题、短暂富裕', uprightDeep: '你正享受着多代努力积累下来的丰厚成果。这不仅是物质上的富足，更是一种可以传承的稳定与智慧。珍惜并善加管理这份遗产。', reversedWarning: '财富或遗产方面可能出现了分歧和纷争。物质的传承如果没有精神的传承来支撑，终将分崩离析。', visual: '一个大家庭聚集在华丽的城堡前，老人、中年人和孩子们在一起，十枚星币如拱门般排列。' },
+    Page: { upright: '学习机会、新技能、务实的开始', reversed: '缺乏进展、不切实际、浪费', uprightDeep: '一个学习新技能或开始新项目的机会正在向你走来。用务实和认真的态度来对待它，小小的开始可以成就大事。', reversedWarning: '你可能缺乏将想法落实到行动中的能力。空有计划而不执行，再好的机会也会被浪费。从最小的一步开始。', visual: '一位年轻人在绿色原野上专注地审视手中的星币，表情认真而充满求知欲。' },
+    Knight: { upright: '勤劳、可靠、稳步前进、责任', reversed: '懒惰、停滞、过于保守', uprightDeep: '你正以稳健而可靠的步伐向目标前进。不急不躁，每一步都踏实有力。你的坚持和勤勉终将带来丰厚的回报。', reversedWarning: '你可能陷入了舒适区，失去了前进的动力。稳健不等于停滞，重新激活你的行动力，别让安逸成为成长的绊脚石。', visual: '骑士骑着健壮的黑马缓步前行，手持星币，周围是丰收的田野，步伐沉稳坚定。' },
+    Queen: { upright: '实用、慷慨、安全感、大地母亲', reversed: '过度保护、物质执着、不安全感', uprightDeep: '你以务实和慷慨的方式照顾着自己和他人。你创造的不仅是物质上的安全，更是一个让人感到被支持和滋养的空间。', reversedWarning: '你可能过度执着于物质安全感，或者用过度保护的方式来控制他人。真正的安全感来自内心，而非银行账户。', visual: '王后坐在花园中的宝座上，膝上放着一枚星币，四周是鲜花和兔子，氛围温馨富足。' },
+    King: { upright: '财富、商业成功、可靠、慷慨', reversed: '贪婪、吝啬、过度物质主义', uprightDeep: '你正以企业家的智慧和国王的气度掌控着你的物质世界。你的商业嗅觉和管理能力正处于巅峰，大胆做出那些长远的决策。', reversedWarning: '财富可能正在成为你的主人而非仆人。如果你发现自己为了金钱而牺牲了健康、关系或道德，是时候重新定义成功的含义了。', visual: '国王坐在装饰着公牛雕刻的宝座上，一手持权杖，膝上放着星币，长袍上绣满葡萄藤。' },
+  },
 };
 
 function generateMinorArcana(): TarotCard[] {
   const cards: TarotCard[] = [];
   let id = 22;
-  
-  for (const suit of suits) {
+
+  for (const suit of suitConfig) {
+    const suitMeanings = minorMeanings[suit.nameEn];
+
     // Number cards 1-10
     for (let num = 1; num <= 10; num++) {
       const label = num === 1 ? 'Ace' : String(num);
       const labelCn = num === 1 ? '王牌' : String(num);
-      const meanings = numberMeanings[label] || numberMeanings['2'];
+      const m = suitMeanings[label];
+      const padded = String(num).padStart(2, '0');
       cards.push({
         id: id++,
         name: `${suit.name}${labelCn}`,
         nameEn: `${label} of ${suit.nameEn}`,
         arcana: 'minor',
         suit: suit.name,
-        upright: meanings.upright,
-        reversed: meanings.reversed,
-        description: `${suit.name}${labelCn}属于${suit.element}元素，代表${meanings.upright}的能量。`,
+        image: `${IMG_BASE}/${suit.prefix}${padded}.jpg`,
+        visualDescription: m.visual,
+        upright: m.upright,
+        reversed: m.reversed,
+        uprightDeep: m.uprightDeep,
+        reversedWarning: m.reversedWarning,
+        description: `${suit.name}${labelCn}属于${suit.element}元素，代表${m.upright.split('、')[0]}的能量。`,
       });
     }
     // Court cards
-    for (let i = 0; i < courtCards.length; i++) {
-      const meanings = numberMeanings[courtCardsEn[i]];
+    for (const court of courtCards) {
+      const m = suitMeanings[court.en];
+      const padded = String(court.num).padStart(2, '0');
       cards.push({
         id: id++,
-        name: `${suit.name}${courtCards[i]}`,
-        nameEn: `${courtCardsEn[i]} of ${suit.nameEn}`,
+        name: `${suit.name}${court.cn}`,
+        nameEn: `${court.en} of ${suit.nameEn}`,
         arcana: 'minor',
         suit: suit.name,
-        upright: meanings.upright,
-        reversed: meanings.reversed,
-        description: `${suit.name}${courtCards[i]}代表${suit.element}元素中${meanings.upright}的人格特质。`,
+        image: `${IMG_BASE}/${suit.prefix}${padded}.jpg`,
+        visualDescription: m.visual,
+        upright: m.upright,
+        reversed: m.reversed,
+        uprightDeep: m.uprightDeep,
+        reversedWarning: m.reversedWarning,
+        description: `${suit.name}${court.cn}代表${suit.element}元素中${m.upright.split('、')[0]}的人格特质。`,
       });
     }
   }
