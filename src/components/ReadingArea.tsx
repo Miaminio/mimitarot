@@ -117,9 +117,8 @@ const ReadingArea = () => {
     setInterpretation('');
 
     setTimeout(() => {
-      // Shuffle ALL 78 cards and show 21 for selection
       const shuffled = [...allTarotCards].sort(() => Math.random() - 0.5);
-      setShuffledDeck(shuffled.slice(0, 21));
+      setShuffledDeck(shuffled);
       setPhase('selecting');
     }, 2000);
   }, []);
@@ -259,18 +258,20 @@ const ReadingArea = () => {
                 {' · '}
                 {spreadType === 'choice' ? '二选一牌阵' : '时间流牌阵'}
               </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                {shuffledDeck.map((card, i) => (
-                  <TarotCard
-                    key={card.id}
-                    card={card}
-                    size="md"
-                    index={i}
-                    isFlipped={flippedIndices.has(i)}
-                    isSelected={selectedCards.some(c => c.id === card.id)}
-                    onClick={() => handleCardSelect(card, i)}
-                  />
-                ))}
+              <div className="max-h-[60vh] overflow-y-auto rounded-xl border border-gold/10 p-4 scrollbar-thin scrollbar-thumb-gold/20 scrollbar-track-transparent">
+                <div className="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-9 lg:grid-cols-11 gap-2 justify-items-center">
+                  {shuffledDeck.map((card, i) => (
+                    <TarotCard
+                      key={card.id}
+                      card={card}
+                      size="sm"
+                      index={i}
+                      isFlipped={flippedIndices.has(i)}
+                      isSelected={selectedCards.some(c => c.id === card.id)}
+                      onClick={() => handleCardSelect(card, i)}
+                    />
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}
