@@ -1,12 +1,30 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { allTarotCards, type TarotCard as TarotCardType } from '@/lib/tarot-data';
 import TarotCard from './TarotCard';
 import { X, Eye, EyeOff } from 'lucide-react';
 
+const categories = [
+  { key: 'major', label: '大阿尔卡纳' },
+  { key: '权杖', label: '权杖' },
+  { key: '圣杯', label: '圣杯' },
+  { key: '宝剑', label: '宝剑' },
+  { key: '星币', label: '星币' },
+] as const;
+
+type CategoryKey = typeof categories[number]['key'];
+
 const CardGrid = () => {
   const [selectedCard, setSelectedCard] = useState<TarotCardType | null>(null);
   const [showReversed, setShowReversed] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<CategoryKey>('major');
+
+  const filteredCards = useMemo(() => {
+    if (activeCategory === 'major') {
+      return allTarotCards.filter(c => c.arcana === 'major');
+    }
+    return allTarotCards.filter(c => c.suit === activeCategory);
+  }, [activeCategory]);
 
   return (
     <section className="relative z-10 py-16 px-4">
@@ -14,22 +32,53 @@ const CardGrid = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
-        className="text-center mb-12"
+        className="text-center mb-8"
       >
         <h2 className="text-gold-gradient font-display text-2xl md:text-3xl mb-2">牌义百科</h2>
         <p className="text-muted-foreground text-sm md:text-base">点击任意卡牌，探索它的奥秘</p>
       </motion.div>
 
-      <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-2 md:gap-3">
-        {allTarotCards.map((card, i) => (
-          <TarotCard
-            key={card.id}
-            card={card}
-            size="sm"
-            index={i}
-            onClick={() => { setSelectedCard(card); setShowReversed(false); }}
-          />
+      {/* Category Tabs */}
+      <div className="flex justify-center gap-1 md:gap-2 mb-10 flex-wrap">
+        {categories.map(cat => (
+          <button
+            key={cat.key}
+            onClick={() => setActiveCategory(cat.key)}
+            className={`px-4 py-2 rounded-full font-display text-xs md:text-sm tracking-wider transition-all ${
+              activeCategory === cat.key
+                ? 'bg-gold/20 text-gold border border-gold/30'
+                : 'text-muted-foreground hover:text-foreground border border-transparent hover:border-muted/30'
+            }`}
+          >
+            {cat.label}
+            <span className="ml-1.5 text-[10px] opacity-60">
+              {cat.key === 'major' ? '22' : '14'}
+            </span>
+          </button>
         ))}
+      </div>
+
+      <div className="max-w-6xl mx-auto">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeCategory}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            className="flex flex-wrap justify-center gap-2 md:gap-3"
+          >
+            {filteredCards.map((card, i) => (
+              <TarotCard
+                key={card.id}
+                card={card}
+                size="sm"
+                index={i}
+                onClick={() => { setSelectedCard(card); setShowReversed(false); }}
+              />
+            ))}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Card Detail Modal */}
@@ -43,34 +92,40 @@ const CardGrid = () => {
             onClick={() => setSelectedCard(null)}
           >
             <motion.div
-              className="bg-card border border-gold-subtle rounded-2xl max-w-lg w-full card-glow-active overflow-hidden max-h-[90vh] overflow-y-auto"
+              className="bg-card border border-gold/20 rounded-2xl max-w-lg w-full overflow-hidden max-h-[90vh] overflow-y-auto"
+              style={{ boxShadow: '0 0 60px hsl(40 55% 58% / 0.15), 0 0 120px hsl(260 40% 14% / 0.3)' }}
               initial={{ scale: 0.85, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.85, opacity: 0, y: 20 }}
               transition={{ type: 'spring', damping: 25 }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Image Section */}
-              <div className="relative">
-                <div className="aspect-[3/4] max-h-[40vh] overflow-hidden bg-secondary">
+              {/* Image Section with glow */}
+              <div className="relative flex justify-center py-6 bg-gradient-to-b from-secondary/80 to-card">
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, duration: 0.5 }}
+                  className="relative"
+                >
+                  <div className="absolute -inset-4 rounded-2xl bg-gold/10 blur-2xl animate-pulse-gold" />
                   <img
                     src={selectedCard.image}
                     alt={selectedCard.name}
-                    className="w-full h-full object-contain"
+                    className="relative w-48 md:w-56 rounded-lg border border-gold/20 shadow-2xl"
+                    style={{ boxShadow: '0 0 30px hsl(40 55% 58% / 0.2)' }}
                   />
-                </div>
+                </motion.div>
                 <button
                   onClick={() => setSelectedCard(null)}
                   className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center text-foreground/70 hover:text-foreground transition-colors"
                 >
                   <X size={16} />
                 </button>
-                {/* Gradient overlay */}
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-card to-transparent" />
               </div>
 
               {/* Content Section */}
-              <div className="px-6 pb-6 -mt-4 relative">
+              <div className="px-6 pb-6 pt-4">
                 <p className="text-gold/50 font-display text-[10px] tracking-[0.2em] uppercase mb-1">
                   {selectedCard.arcana === 'major' ? '大阿尔卡纳' : `小阿尔卡纳 · ${selectedCard.suit}`}
                 </p>
