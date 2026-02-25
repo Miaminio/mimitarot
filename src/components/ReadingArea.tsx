@@ -13,6 +13,13 @@ type Phase = 'input' | 'shuffling' | 'selecting' | 'reading';
 const decisionKeywords = ['选择', '还是', '应该', '要不要', '能不能', '是否', 'A还是B', '决定', '二选一', '该不该', '或者'];
 const fortuneKeywords = ['运势', '未来', '接下来', '发展', '前景', '趋势', '会怎样', '结果', '走向', '将来'];
 
+const quickQuestions = [
+  { label: '🌙 下周运势如何？', text: '下周运势如何？' },
+  { label: '💕 感情未来走向？', text: '感情未来走向？' },
+  { label: '💼 事业转机在哪？', text: '事业转机在哪？' },
+  { label: '✨ 今日灵感启示', text: '今日灵感启示' },
+];
+
 function detectIntent(question: string): SpreadType {
   if (decisionKeywords.some(k => question.includes(k))) return 'choice';
   if (fortuneKeywords.some(k => question.includes(k))) return 'timeline';
@@ -95,13 +102,14 @@ const ReadingArea = () => {
     }
   }, []);
 
-  const handleSubmit = useCallback(() => {
-    if (!question.trim()) return;
+  const startReading = useCallback((q: string) => {
+    if (!q.trim()) return;
     if (!canDrawToday()) {
       toast.error('今日抽牌次数已用完，明天再来吧 ✨');
       return;
     }
-    const intent = detectIntent(question);
+    setQuestion(q);
+    const intent = detectIntent(q);
     setSpreadType(intent);
     setPhase('shuffling');
     setSelectedCards([]);
@@ -109,11 +117,21 @@ const ReadingArea = () => {
     setInterpretation('');
 
     setTimeout(() => {
+      // Shuffle ALL 78 cards and show 21 for selection
       const shuffled = [...allTarotCards].sort(() => Math.random() - 0.5);
-      setShuffledDeck(shuffled.slice(0, 12));
+      setShuffledDeck(shuffled.slice(0, 21));
       setPhase('selecting');
     }, 2000);
-  }, [question]);
+  }, []);
+
+  const handleSubmit = useCallback(() => {
+    startReading(question);
+  }, [question, startReading]);
+
+  const handleQuickQuestion = (text: string) => {
+    setQuestion(text);
+    startReading(text);
+  };
 
   const handleCardSelect = (card: TarotCardType, index: number) => {
     if (selectedCards.length >= requiredCards) return;
@@ -169,12 +187,27 @@ const ReadingArea = () => {
               exit={{ opacity: 0 }}
               className="space-y-4"
             >
+              {/* Quick Questions */}
+              <div className="flex flex-wrap justify-center gap-2 mb-2">
+                {quickQuestions.map((q) => (
+                  <motion.button
+                    key={q.text}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleQuickQuestion(q.text)}
+                    className="px-4 py-2 rounded-full border border-gold/20 bg-gold/5 hover:bg-gold/15 text-gold/80 hover:text-gold font-body text-sm transition-all backdrop-blur-sm"
+                  >
+                    {q.label}
+                  </motion.button>
+                ))}
+              </div>
+
               <div className="relative">
                 <textarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="输入你的问题... 例如：我该选择A工作还是B工作？"
-                  className="w-full bg-secondary/50 border border-gold-subtle rounded-xl p-4 pr-12 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-gold/50 resize-none h-24 font-body text-base transition-all"
+                  className="w-full bg-secondary/50 border border-gold/20 rounded-xl p-4 pr-12 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-gold/50 resize-none h-24 font-body text-base transition-all"
                 />
                 <button
                   onClick={handleSubmit}
@@ -250,7 +283,7 @@ const ReadingArea = () => {
               exit={{ opacity: 0 }}
               className="space-y-8"
             >
-              <div className="bg-secondary/30 border border-gold-subtle rounded-xl p-4 mb-6">
+              <div className="bg-secondary/30 border border-gold/10 rounded-xl p-4 mb-6">
                 <p className="text-muted-foreground text-xs font-display mb-1">你的问题</p>
                 <p className="text-foreground text-sm">{question}</p>
               </div>
@@ -281,7 +314,7 @@ const ReadingArea = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="bg-secondary/30 border border-gold-subtle rounded-xl p-6"
+                className="bg-secondary/30 border border-gold/10 rounded-xl p-6"
               >
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-4 h-4 text-gold" />
