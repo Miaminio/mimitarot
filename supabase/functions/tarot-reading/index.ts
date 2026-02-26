@@ -19,9 +19,10 @@ serve(async (req) => {
     const spreadLabel = spreadType === 'choice' ? '二选一牌阵' : '时间流牌阵（过去·现在·未来）';
     const positionLabels = spreadType === 'choice' ? ['选项A', '选项B'] : ['过去', '现在', '未来'];
 
-    const cardDescriptions = cards.map((card: any, i: number) => 
-      `位置「${positionLabels[i]}」：${card.name}（${card.nameEn}）— 正位含义：${card.upright}；逆位含义：${card.reversed}。${card.description}`
-    ).join('\n');
+    const cardDescriptions = cards.map((card: any, i: number) => {
+      const orientation = card.isReversed ? '逆位' : '正位';
+      return `位置「${positionLabels[i]}」：${card.name}（${card.nameEn}）— ${orientation} — 正位含义：${card.upright}；逆位含义：${card.reversed}。${card.description}`;
+    }).join('\n');
 
     const personaPrompts: Record<string, string> = {
       seer: `你是一位毒舌但精准的塔罗预言家。你的风格犀利直接、一针见血，不绕弯子。你会用略带戏谑的语气指出问题的核心，但最终依然给出有建设性的方向。你的话虽然扎心，但句句属实。偶尔用反问句刺激思考。`,
@@ -37,7 +38,9 @@ serve(async (req) => {
 4. 给出清晰、有建设性的建议
 5. 语言${persona === 'seer' ? '犀利直率，偶尔带点幽默的毒舌' : '优美温暖，使用适当的比喻，充满关怀'}
 6. 保持 400-600 字的长度
-7. 使用 markdown 格式，用 **加粗** 突出关键词`;
+7. 使用 markdown 格式，用 **加粗** 突出关键词
+8. 注意每张牌的正逆位状态，逆位时侧重解读逆位含义
+9. 在解读末尾，以"---"分隔后附加一段"☯ 紫微简评"，结合当前月份（2026年2月），用东方哲学与紫微斗数的语言给出50字左右的运势提示`;
 
     const userPrompt = `提问者的问题：${question}
 

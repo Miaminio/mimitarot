@@ -4,6 +4,7 @@ export interface TarotCard {
   nameEn: string;
   arcana: 'major' | 'minor';
   suit?: string;
+  number?: string; // Roman numeral for major, or card number
   image: string;
   visualDescription: string;
   upright: string;
@@ -13,11 +14,13 @@ export interface TarotCard {
   description: string;
 }
 
+const romanNumerals = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
+
 const IMG_BASE = 'https://raw.githubusercontent.com/metabismuth/tarot-json/master/cards';
 
 const majorArcana: TarotCard[] = [
   {
-    id: 0, name: '愚者', nameEn: 'The Fool', arcana: 'major',
+    id: 0, name: '0 · 愚者', nameEn: 'The Fool', arcana: 'major', number: '0',
     image: `${IMG_BASE}/m00.jpg`,
     visualDescription: '一位青年站在悬崖边缘，仰望天空，怀抱白玫瑰，脚下是万丈深渊。一只小白狗在他脚边蹦跳，似乎在提醒他注意脚下。',
     upright: '新开始、冒险、自由、纯真',
@@ -27,7 +30,7 @@ const majorArcana: TarotCard[] = [
     description: '愚者是大阿尔卡纳的起点与终点，编号为0，象征着无限的可能性与永恒的循环。',
   },
   {
-    id: 1, name: '魔术师', nameEn: 'The Magician', arcana: 'major',
+    id: 1, name: 'I · 魔术师', nameEn: 'The Magician', arcana: 'major', number: 'I',
     image: `${IMG_BASE}/m01.jpg`,
     visualDescription: '魔术师一手指天，一手指地，桌上摆放着权杖、圣杯、宝剑和星币四件法器。他头顶悬浮着无限符号∞，身披红白长袍。',
     upright: '创造力、意志力、技能、资源充沛',
@@ -37,7 +40,7 @@ const majorArcana: TarotCard[] = [
     description: '魔术师掌握四元素之力，是意识与物质世界之间的桥梁，代表将想法化为现实的神圣能力。',
   },
   {
-    id: 2, name: '女祭司', nameEn: 'The High Priestess', arcana: 'major',
+    id: 2, name: 'II · 女祭司', nameEn: 'The High Priestess', arcana: 'major', number: 'II',
     image: `${IMG_BASE}/m02.jpg`,
     visualDescription: '女祭司端坐在两根柱子之间，一黑一白，象征对立统一。她膝上放着一卷半遮半掩的卷轴，身后是一幅石榴与棕榈的帷幕。',
     upright: '直觉、神秘、内在智慧、潜意识',
@@ -47,7 +50,7 @@ const majorArcana: TarotCard[] = [
     description: '女祭司守护潜意识的大门，她是月亮的化身，象征着隐藏在表象之下的深层智慧。',
   },
   {
-    id: 3, name: '女皇', nameEn: 'The Empress', arcana: 'major',
+    id: 3, name: 'III · 女皇', nameEn: 'The Empress', arcana: 'major', number: 'III',
     image: `${IMG_BASE}/m03.jpg`,
     visualDescription: '女皇身着华美长裙端坐在天鹅绒垫上，周围环绕着金色麦田和茂密森林。她手持权杖，头戴十二星冠，脚边流淌着清澈溪水。',
     upright: '丰盛、母性、自然、创造力、感官愉悦',
@@ -57,7 +60,7 @@ const majorArcana: TarotCard[] = [
     description: '女皇象征大地母亲的丰饶与无条件的爱，她是生命力与创造力的源泉。',
   },
   {
-    id: 4, name: '皇帝', nameEn: 'The Emperor', arcana: 'major',
+    id: 4, name: 'IV · 皇帝', nameEn: 'The Emperor', arcana: 'major', number: 'IV',
     image: `${IMG_BASE}/m04.jpg`,
     visualDescription: '皇帝身披铠甲端坐在石雕宝座上，宝座装饰着四个公羊头。他右手持权杖，左手握着象征世界的球体，背后是荒芜的山峦。',
     upright: '权威、结构、稳定、领导力、纪律',
@@ -67,7 +70,7 @@ const majorArcana: TarotCard[] = [
     description: '皇帝代表世俗世界的最高权威，是秩序、法则和保护力量的象征。',
   },
   {
-    id: 5, name: '教皇', nameEn: 'The Hierophant', arcana: 'major',
+    id: 5, name: 'V · 教皇', nameEn: 'The Hierophant', arcana: 'major', number: 'V',
     image: `${IMG_BASE}/m05.jpg`,
     visualDescription: '教皇身着华丽法衣端坐在两位信徒之间，右手高举象征祝福的手势，左手持三重十字权杖。他头戴三层冠冕，脚下放着两把交叉的钥匙。',
     upright: '传统、信仰、教导、精神指引、仪式',
@@ -77,7 +80,7 @@ const majorArcana: TarotCard[] = [
     description: '教皇是精神世界与物质世界之间的桥梁，代表着传承的智慧和信仰的力量。',
   },
   {
-    id: 6, name: '恋人', nameEn: 'The Lovers', arcana: 'major',
+    id: 6, name: 'VI · 恋人', nameEn: 'The Lovers', arcana: 'major', number: 'VI',
     image: `${IMG_BASE}/m06.jpg`,
     visualDescription: '天使拉斐尔从云端俯瞰一对赤裸男女。男子身后是生命之树，女子身后是善恶知识树，树上缠绕着蛇。远处是一座火山。',
     upright: '爱情、和谐、选择、价值观统一、亲密关系',
@@ -87,7 +90,7 @@ const majorArcana: TarotCard[] = [
     description: '恋人牌不仅象征浪漫爱情，更代表灵魂层面的抉择与价值观的融合。',
   },
   {
-    id: 7, name: '战车', nameEn: 'The Chariot', arcana: 'major',
+    id: 7, name: 'VII · 战车', nameEn: 'The Chariot', arcana: 'major', number: 'VII',
     image: `${IMG_BASE}/m07.jpg`,
     visualDescription: '一位身披铠甲的勇士驾驭着由一黑一白两只斯芬克斯拉动的战车。他头顶繁星冠冕，战车上装饰着翅膀和星月符号。',
     upright: '决心、胜利、意志力、前进、自律',
@@ -97,7 +100,7 @@ const majorArcana: TarotCard[] = [
     description: '战车代表意志的凯旋，是通过自律和决心征服一切障碍的力量。',
   },
   {
-    id: 8, name: '力量', nameEn: 'Strength', arcana: 'major',
+    id: 8, name: 'VIII · 力量', nameEn: 'Strength', arcana: 'major', number: 'VIII',
     image: `${IMG_BASE}/m08.jpg`,
     visualDescription: '一位身着白衣的女子温柔地合拢一头雄狮的大嘴。她头顶悬浮着无限符号∞，腰间环绕着花环，表情宁静而自信。',
     upright: '勇气、耐心、内在力量、温柔、自信',
@@ -107,7 +110,7 @@ const majorArcana: TarotCard[] = [
     description: '力量牌展现的是温柔胜于刚强、慈悲胜于暴力的永恒真理。',
   },
   {
-    id: 9, name: '隐士', nameEn: 'The Hermit', arcana: 'major',
+    id: 9, name: 'IX · 隐士', nameEn: 'The Hermit', arcana: 'major', number: 'IX',
     image: `${IMG_BASE}/m09.jpg`,
     visualDescription: '一位白发老者独立于雪山之巅，身披灰色斗篷。他右手高举一盏灯笼，灯笼中闪耀着六芒星之光，左手持一根长杖。',
     upright: '内省、寻求真理、独处、灵性觉醒、智慧',
@@ -117,7 +120,7 @@ const majorArcana: TarotCard[] = [
     description: '隐士提灯独行于山巅，象征着向内求索的灵性旅程和通过独处获得的深邃智慧。',
   },
   {
-    id: 10, name: '命运之轮', nameEn: 'Wheel of Fortune', arcana: 'major',
+    id: 10, name: 'X · 命运之轮', nameEn: 'Wheel of Fortune', arcana: 'major', number: 'X',
     image: `${IMG_BASE}/m10.jpg`,
     visualDescription: '一个巨大的金色轮盘悬浮在云端，轮上刻着TARO字母和炼金术符号。四角分别是人、鹰、狮和牛的形象，轮上附着着上升和下降的生物。',
     upright: '命运、转变、机遇、好运、周期',
@@ -127,7 +130,7 @@ const majorArcana: TarotCard[] = [
     description: '命运之轮象征因果轮回与命运的无常，提醒我们万事皆有其循环与节奏。',
   },
   {
-    id: 11, name: '正义', nameEn: 'Justice', arcana: 'major',
+    id: 11, name: 'XI · 正义', nameEn: 'Justice', arcana: 'major', number: 'XI',
     image: `${IMG_BASE}/m11.jpg`,
     visualDescription: '正义女神端坐于石柱之间，右手高举利剑，左手持天平。她身着红袍，头戴金冠，表情庄严而公正，身后悬挂着紫色帷幕。',
     upright: '公正、真相、因果、平衡、责任',
@@ -137,7 +140,7 @@ const majorArcana: TarotCard[] = [
     description: '正义牌代表因果法则与公平裁决，是真相与平衡的守护者。',
   },
   {
-    id: 12, name: '倒吊人', nameEn: 'The Hanged Man', arcana: 'major',
+    id: 12, name: 'XII · 倒吊人', nameEn: 'The Hanged Man', arcana: 'major', number: 'XII',
     image: `${IMG_BASE}/m12.jpg`,
     visualDescription: '一个人被一只脚倒挂在T形木架上，另一只腿弯曲成数字4的形状。他的头部散发着金色光环，面部表情出奇地平静而安详。',
     upright: '牺牲、放手、新视角、暂停、顿悟',
@@ -147,7 +150,7 @@ const majorArcana: TarotCard[] = [
     description: '倒吊人以全新的角度看世界，在主动的放手与臣服中获得了超越性的领悟。',
   },
   {
-    id: 13, name: '死神', nameEn: 'Death', arcana: 'major',
+    id: 13, name: 'XIII · 死神', nameEn: 'Death', arcana: 'major', number: 'XIII',
     image: `${IMG_BASE}/m13.jpg`,
     visualDescription: '一位骑着白马的骷髅骑士手持黑色旗帜，旗上绘有白色五瓣玫瑰。国王倒在他面前，主教在祈祷，少女跪地回避，孩子天真地献上花束。远方是日出。',
     upright: '结束、转变、新生、蜕变、释放',
@@ -157,7 +160,7 @@ const majorArcana: TarotCard[] = [
     description: '死神并非终结的使者，而是深刻蜕变与重生的催化剂。旧的必须死去，新的才能诞生。',
   },
   {
-    id: 14, name: '节制', nameEn: 'Temperance', arcana: 'major',
+    id: 14, name: 'XIV · 节制', nameEn: 'Temperance', arcana: 'major', number: 'XIV',
     image: `${IMG_BASE}/m14.jpg`,
     visualDescription: '一位天使一脚踏在水中，一脚站在陆地上，将水从一个杯子缓缓倒入另一个杯子。她胸前有一个三角形标记，身后是一条通往光芒四射的王冠的小径。',
     upright: '平衡、耐心、和谐、中庸、疗愈',
@@ -167,7 +170,7 @@ const majorArcana: TarotCard[] = [
     description: '节制天使在水陆之间、两杯之间调和能量，象征着和谐、平衡与灵性的炼金术。',
   },
   {
-    id: 15, name: '恶魔', nameEn: 'The Devil', arcana: 'major',
+    id: 15, name: 'XV · 恶魔', nameEn: 'The Devil', arcana: 'major', number: 'XV',
     image: `${IMG_BASE}/m15.jpg`,
     visualDescription: '一个半人半兽的恶魔端坐在黑暗的基座上，基座上锁着一对赤裸男女。他们脖子上的锁链松松垮垮，似乎随时可以挣脱。恶魔举起右手，掌心有倒五芒星。',
     upright: '束缚、诱惑、物质执着、阴暗面、依赖',
@@ -177,7 +180,7 @@ const majorArcana: TarotCard[] = [
     description: '恶魔牌揭示我们内心的枷锁与阴暗面，但仔细看——那些锁链其实随时可以摘下。',
   },
   {
-    id: 16, name: '塔', nameEn: 'The Tower', arcana: 'major',
+    id: 16, name: 'XVI · 塔', nameEn: 'The Tower', arcana: 'major', number: 'XVI',
     image: `${IMG_BASE}/m16.jpg`,
     visualDescription: '一座高塔被闪电击中，塔顶的王冠被击落，火焰从窗户中喷出。两个人从塔顶坠落，背景是漆黑的天空和倾泻而下的火焰碎片。',
     upright: '剧变、觉醒、突破、真相揭露、解放',
@@ -187,7 +190,7 @@ const majorArcana: TarotCard[] = [
     description: '高塔被雷电击毁，象征着虚假结构的崩溃和随之而来的残酷而必要的觉醒。',
   },
   {
-    id: 17, name: '星星', nameEn: 'The Star', arcana: 'major',
+    id: 17, name: 'XVII · 星星', nameEn: 'The Star', arcana: 'major', number: 'XVII',
     image: `${IMG_BASE}/m17.jpg`,
     visualDescription: '一位裸体女子跪在水边，一只脚踏入水中，一只脚踏在陆地上。她将两个水壶中的水分别倒入池塘和大地。天空中有一颗巨大的八芒星和七颗小星星。',
     upright: '希望、灵感、宁静、治愈、信心',
@@ -197,7 +200,7 @@ const majorArcana: TarotCard[] = [
     description: '星星是暴风雨后的宁静与希望，象征灵魂的治愈和对未来的深刻信心。',
   },
   {
-    id: 18, name: '月亮', nameEn: 'The Moon', arcana: 'major',
+    id: 18, name: 'XVIII · 月亮', nameEn: 'The Moon', arcana: 'major', number: 'XVIII',
     image: `${IMG_BASE}/m18.jpg`,
     visualDescription: '一轮满月高悬夜空，月中有人脸侧影。两座塔楼之间，一条蜿蜒小路伸向远方。一只狗和一只狼对月嚎叫，水池中有一只龙虾正从水中爬出。',
     upright: '幻觉、直觉、潜意识、恐惧、迷雾',
@@ -207,7 +210,7 @@ const majorArcana: TarotCard[] = [
     description: '月亮照耀着潜意识的深渊，在真实与幻觉之间，引导我们穿越内心最深的恐惧。',
   },
   {
-    id: 19, name: '太阳', nameEn: 'The Sun', arcana: 'major',
+    id: 19, name: 'XIX · 太阳', nameEn: 'The Sun', arcana: 'major', number: 'XIX',
     image: `${IMG_BASE}/m19.jpg`,
     visualDescription: '一轮光芒四射的太阳照耀大地，一个赤裸的孩子骑在白马上，手持红色旗帜，面带灿烂笑容。背后是一堵石墙，墙后盛开着向日葵。',
     upright: '快乐、成功、活力、光明、天真',
@@ -217,7 +220,7 @@ const majorArcana: TarotCard[] = [
     description: '太阳是纯粹的光明与喜悦，照亮一切阴暗角落，带来温暖、成功和生命力。',
   },
   {
-    id: 20, name: '审判', nameEn: 'Judgement', arcana: 'major',
+    id: 20, name: 'XX · 审判', nameEn: 'Judgement', arcana: 'major', number: 'XX',
     image: `${IMG_BASE}/m20.jpg`,
     visualDescription: '天使加百列从云端吹响号角，棺材中的男女和孩子听到号角声纷纷起身，张开双臂迎接光芒。背景是连绵的山脉和灰色天空。',
     upright: '重生、觉醒、召唤、审视、蜕变',
@@ -227,7 +230,7 @@ const majorArcana: TarotCard[] = [
     description: '号角吹响，灵魂被唤醒。审判牌象征着最终的清算、觉醒和灵性的重生。',
   },
   {
-    id: 21, name: '世界', nameEn: 'The World', arcana: 'major',
+    id: 21, name: 'XXI · 世界', nameEn: 'The World', arcana: 'major', number: 'XXI',
     image: `${IMG_BASE}/m21.jpg`,
     visualDescription: '一位女子在月桂花环中翩翩起舞，双手各持一根魔杖。花环四角分别是人、鹰、狮和牛的形象，她身披紫色丝带，表情圆满而祥和。',
     upright: '完成、整合、成就、圆满、世界性视野',

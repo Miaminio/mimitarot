@@ -11,6 +11,11 @@ type SpreadType = 'choice' | 'timeline' | null;
 type Phase = 'input' | 'shuffling' | 'selecting' | 'reading';
 type Persona = 'seer' | 'healer';
 
+interface SelectedCardInfo {
+  card: TarotCardType;
+  isReversed: boolean;
+}
+
 const decisionKeywords = ['选择', '还是', '应该', '要不要', '能不能', '是否', 'A还是B', '决定', '二选一', '该不该', '或者'];
 const fortuneKeywords = ['运势', '未来', '接下来', '发展', '前景', '趋势', '会怎样', '结果', '走向', '将来'];
 
@@ -53,7 +58,7 @@ const ReadingArea = () => {
   const [phase, setPhase] = useState<Phase>('input');
   const [spreadType, setSpreadType] = useState<SpreadType>(null);
   const [shuffledDeck, setShuffledDeck] = useState<TarotCardType[]>([]);
-  const [selectedCards, setSelectedCards] = useState<TarotCardType[]>([]);
+  const [selectedCards, setSelectedCards] = useState<SelectedCardInfo[]>([]);
   const [flippedIndices, setFlippedIndices] = useState<Set<number>>(new Set());
   const [interpretation, setInterpretation] = useState('');
   const [isInterpreting, setIsInterpreting] = useState(false);
@@ -67,7 +72,7 @@ const ReadingArea = () => {
     return ziweiTips[dayIndex];
   }, []);
 
-  const streamInterpretation = useCallback(async (q: string, cards: TarotCardType[], spread: SpreadType, style: Persona) => {
+  const streamInterpretation = useCallback(async (q: string, cards: SelectedCardInfo[], spread: SpreadType, style: Persona) => {
     setIsInterpreting(true);
     setInterpretation('');
 
@@ -78,7 +83,12 @@ const ReadingArea = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ question: q, cards, spreadType: spread, persona: style }),
+        body: JSON.stringify({
+          question: q,
+          cards: cards.map(c => ({ ...c.card, isReversed: c.isReversed })),
+          spreadType: spread,
+          persona: style,
+        }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -162,9 +172,10 @@ const ReadingArea = () => {
 
   const handleCardSelect = (card: TarotCardType, index: number) => {
     if (selectedCards.length >= requiredCards) return;
-    if (selectedCards.find(c => c.id === card.id)) return;
+    if (selectedCards.find(c => c.card.id === card.id)) return;
 
-    const newSelected = [...selectedCards, card];
+    const isReversed = Math.random() < 0.5;
+    const newSelected = [...selectedCards, { card, isReversed }];
     setSelectedCards(newSelected);
     setFlippedIndices(prev => new Set(prev).add(index));
 
@@ -349,11 +360,11 @@ const ReadingArea = () => {
               </motion.button>
 
               {/* Fan Spread */}
-              <div className="relative mx-auto" style={{ height: '340px', maxWidth: '700px' }}>
+              <div className="relative mx-auto" style={{ height: '400px', width: '80vw', maxWidth: '900px' }}>
                 <AnimatePresence>
                   {!isReshuffling && shuffledDeck.map((card, i) => {
                     const angle = -fanAngleRange / 2 + (fanAngleRange / (totalCards - 1)) * i;
-                    const isSelected = selectedCards.some(c => c.id === card.id);
+                    const isSelected = selectedCards.some(c => c.card.id === card.id);
                     const isFlipped = flippedIndices.has(i);
 
                     return (
@@ -363,8 +374,8 @@ const ReadingArea = () => {
                         style={{
                           left: '50%',
                           bottom: '-60px',
-                          width: '60px',
-                          height: '96px',
+                          width: '72px',
+                          height: '112px',
                           transformOrigin: 'bottom center',
                           zIndex: i,
                         }}
@@ -378,7 +389,7 @@ const ReadingArea = () => {
                         }}
                         exit={{ opacity: 0, scale: 0.3, y: 50 }}
                         transition={{ delay: Math.min(i * 0.008, 0.5), duration: 0.4, type: 'spring', damping: 20 }}
-                        whileHover={!isSelected ? { y: -30, scale: 1.15, zIndex: 100 } : {}}
+                        whileHover={!isSelected ? { y: -40, scale: 1.25, zIndex: 100 } : {}}
                         whileTap={!isSelected ? { scale: 0.95 } : {}}
                         onClick={() => !isSelected && handleCardSelect(card, i)}
                       >
@@ -415,17 +426,25 @@ const ReadingArea = () => {
               </div>
 
               {/* Selected slots */}
-              <div className={`flex justify-center gap-4 mt-4`}>
+              <div className={`flex justify-center gap-4 md:gap-6 mt-4`}>
                 {spreadLabels.map((label, i) => (
                   <div key={label} className="text-center">
-                    <div className={`w-14 h-20 rounded-md border-2 border-dashed ${selectedCards[i] ? 'border-gold/50' : 'border-gold/15'} flex items-center justify-center bg-secondary/30`}>
+                    <div className={`w-16 h-24 md:w-20 md:h-28 rounded-md border-2 border-dashed ${selectedCards[i] ? 'border-gold/50' : 'border-gold/15'} flex items-center justify-center bg-secondary/30`}>
                       {selectedCards[i] ? (
-                        <img src={selectedCards[i].image} alt={selectedCards[i].name} className="w-full h-full object-cover rounded-md" />
+                        <img
+                          src={selectedCards[i].card.image}
+                          alt={selectedCards[i].card.name}
+                          className="w-full h-full object-cover rounded-md"
+                          style={selectedCards[i].isReversed ? { transform: 'rotate(180deg)' } : {}}
+                        />
                       ) : (
                         <span className="text-gold/20 font-display text-lg">{i + 1}</span>
                       )}
                     </div>
                     <p className="text-gold/40 font-display text-[10px] mt-1">{label}</p>
+                    {selectedCards[i]?.isReversed && (
+                      <p className="text-red-400/70 font-display text-[9px] mt-0.5">逆位</p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -446,9 +465,9 @@ const ReadingArea = () => {
               </div>
 
               <div className={`grid ${spreadType === 'choice' ? 'grid-cols-2' : 'grid-cols-3'} gap-4 md:gap-6`}>
-                {selectedCards.map((card, i) => (
+                {selectedCards.map((sel, i) => (
                   <motion.div
-                    key={card.id}
+                    key={sel.card.id}
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.3 }}
@@ -458,10 +477,16 @@ const ReadingArea = () => {
                       {spreadLabels[i]}
                     </p>
                     <div className="flex justify-center mb-3">
-                      <TarotCard card={card} isFlipped size="lg" index={0} />
+                      <div style={sel.isReversed ? { transform: 'rotate(180deg)' } : {}}>
+                        <TarotCard card={sel.card} isFlipped size="lg" index={0} />
+                      </div>
                     </div>
-                    <p className="text-foreground font-display text-sm">{card.name}</p>
-                    <p className="text-muted-foreground text-xs mt-1">{card.upright}</p>
+                    <p className="text-foreground font-display text-sm">
+                      {sel.card.name}{sel.isReversed ? '（逆位）' : ''}
+                    </p>
+                    <p className="text-muted-foreground text-xs mt-1">
+                      {sel.isReversed ? sel.card.reversed : sel.card.upright}
+                    </p>
                   </motion.div>
                 ))}
               </div>
