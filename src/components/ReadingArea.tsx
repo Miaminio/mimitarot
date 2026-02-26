@@ -1,14 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { allTarotCards, type TarotCard as TarotCardType } from '@/lib/tarot-data';
 import { canDrawToday, markDrawUsed } from '@/lib/daily-limit';
 import TarotCard from './TarotCard';
-import { Sparkles, Shuffle, Send, Loader2 } from 'lucide-react';
+import { Sparkles, Shuffle, Send, Loader2, RefreshCw, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 type SpreadType = 'choice' | 'timeline' | null;
 type Phase = 'input' | 'shuffling' | 'selecting' | 'reading';
+type Persona = 'seer' | 'healer';
 
 const decisionKeywords = ['选择', '还是', '应该', '要不要', '能不能', '是否', 'A还是B', '决定', '二选一', '该不该', '或者'];
 const fortuneKeywords = ['运势', '未来', '接下来', '发展', '前景', '趋势', '会怎样', '结果', '走向', '将来'];
@@ -18,6 +19,25 @@ const quickQuestions = [
   { label: '💕 感情未来走向？', text: '感情未来走向？' },
   { label: '💼 事业转机在哪？', text: '事业转机在哪？' },
   { label: '✨ 今日灵感启示', text: '今日灵感启示' },
+];
+
+const personaOptions: { key: Persona; label: string; desc: string }[] = [
+  { key: 'seer', label: '🔥 毒舌预言家', desc: '直接、犀利、一针见血' },
+  { key: 'healer', label: '🌿 治愈咨询师', desc: '温柔、包容、抚慰心灵' },
+];
+
+// Ziwei daily tips
+const ziweiTips = [
+  '紫微斗数提示：今日天机化禄，适合做重要决策，灵感与智慧并行。',
+  '紫微斗数提示：太阳入命，光芒万丈，宜展现自我，不宜退缩。',
+  '紫微斗数提示：天同星守照，适宜休养身心，以柔克刚方为上策。',
+  '紫微斗数提示：武曲化权在迁移宫，出行与变动皆有良机。',
+  '紫微斗数提示：紫微天府双星会照，贵人运旺盛，把握人际机缘。',
+  '紫微斗数提示：廉贞化忌，慎防感情纠葛，凡事三思而后行。',
+  '紫微斗数提示：天梁星照命，今日适合助人，施比受更有福。',
+  '紫微斗数提示：巨门化禄，口才出众之日，表达与沟通皆顺畅。',
+  '紫微斗数提示：七杀入财帛宫，财运有冲劲，宜大胆不宜犹豫。',
+  '紫微斗数提示：天相合太阴，感性与理性交融，内心清明如镜。',
 ];
 
 function detectIntent(question: string): SpreadType {
@@ -37,9 +57,17 @@ const ReadingArea = () => {
   const [flippedIndices, setFlippedIndices] = useState<Set<number>>(new Set());
   const [interpretation, setInterpretation] = useState('');
   const [isInterpreting, setIsInterpreting] = useState(false);
+  const [persona, setPersona] = useState<Persona>('healer');
+  const [showPersonaMenu, setShowPersonaMenu] = useState(false);
+  const [isReshuffling, setIsReshuffling] = useState(false);
   const requiredCards = spreadType === 'choice' ? 2 : 3;
 
-  const streamInterpretation = useCallback(async (q: string, cards: TarotCardType[], spread: SpreadType) => {
+  const dailyZiwei = useMemo(() => {
+    const dayIndex = new Date().getDate() % ziweiTips.length;
+    return ziweiTips[dayIndex];
+  }, []);
+
+  const streamInterpretation = useCallback(async (q: string, cards: TarotCardType[], spread: SpreadType, style: Persona) => {
     setIsInterpreting(true);
     setInterpretation('');
 
@@ -50,7 +78,7 @@ const ReadingArea = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ question: q, cards, spreadType: spread }),
+        body: JSON.stringify({ question: q, cards, spreadType: spread, persona: style }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -144,9 +172,20 @@ const ReadingArea = () => {
       markDrawUsed();
       setTimeout(() => {
         setPhase('reading');
-        streamInterpretation(question, newSelected, spreadType);
+        streamInterpretation(question, newSelected, spreadType, persona);
       }, 800);
     }
+  };
+
+  const handleReshuffle = () => {
+    setIsReshuffling(true);
+    setSelectedCards([]);
+    setFlippedIndices(new Set());
+    setTimeout(() => {
+      const shuffled = [...allTarotCards].sort(() => Math.random() - 0.5);
+      setShuffledDeck(shuffled);
+      setIsReshuffling(false);
+    }, 1200);
   };
 
   const handleReset = () => {
@@ -161,6 +200,10 @@ const ReadingArea = () => {
   const spreadLabels = spreadType === 'choice'
     ? ['选项 A', '选项 B']
     : ['过去', '现在', '未来'];
+
+  // Fan layout calculations
+  const totalCards = shuffledDeck.length;
+  const fanAngleRange = Math.min(totalCards * 1.8, 160); // degrees
 
   return (
     <section className="relative z-10 py-20 px-4">
@@ -186,6 +229,40 @@ const ReadingArea = () => {
               exit={{ opacity: 0 }}
               className="space-y-4"
             >
+              {/* Persona Selector */}
+              <div className="flex justify-center mb-2">
+                <div className="relative">
+                  <button
+                    onClick={() => setShowPersonaMenu(!showPersonaMenu)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full border border-gold/20 bg-secondary/50 text-gold/80 hover:text-gold font-display text-xs tracking-wider transition-all"
+                  >
+                    {personaOptions.find(p => p.key === persona)?.label}
+                    <ChevronDown size={12} className={`transition-transform ${showPersonaMenu ? 'rotate-180' : ''}`} />
+                  </button>
+                  <AnimatePresence>
+                    {showPersonaMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-card border border-gold/20 rounded-xl overflow-hidden shadow-xl z-50 w-56"
+                      >
+                        {personaOptions.map(p => (
+                          <button
+                            key={p.key}
+                            onClick={() => { setPersona(p.key); setShowPersonaMenu(false); }}
+                            className={`w-full text-left px-4 py-3 hover:bg-gold/10 transition-colors ${persona === p.key ? 'bg-gold/5' : ''}`}
+                          >
+                            <div className="font-display text-sm text-foreground">{p.label}</div>
+                            <div className="font-body text-xs text-muted-foreground">{p.desc}</div>
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
               {/* Quick Questions */}
               <div className="flex flex-wrap justify-center gap-2 mb-2">
                 {quickQuestions.map((q) => (
@@ -252,26 +329,105 @@ const ReadingArea = () => {
               exit={{ opacity: 0 }}
               className="text-center"
             >
-              <p className="text-gold font-display text-lg mb-2">选择 {requiredCards} 张牌</p>
-              <p className="text-muted-foreground text-sm mb-8">
+              <p className="text-gold font-display text-lg mb-1">选择 {requiredCards} 张牌</p>
+              <p className="text-muted-foreground text-sm mb-2">
                 已选 {selectedCards.length} / {requiredCards}
                 {' · '}
                 {spreadType === 'choice' ? '二选一牌阵' : '时间流牌阵'}
               </p>
-              <div className="max-h-[60vh] overflow-y-auto rounded-xl border border-gold/10 p-4 scrollbar-thin scrollbar-thumb-gold/20 scrollbar-track-transparent">
-                <div className="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-9 lg:grid-cols-11 gap-2 justify-items-center">
-                  {shuffledDeck.map((card, i) => (
-                    <TarotCard
-                      key={card.id}
-                      card={card}
-                      size="sm"
-                      index={i}
-                      isFlipped={flippedIndices.has(i)}
-                      isSelected={selectedCards.some(c => c.id === card.id)}
-                      onClick={() => handleCardSelect(card, i)}
-                    />
-                  ))}
-                </div>
+
+              {/* Reshuffle button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleReshuffle}
+                disabled={isReshuffling}
+                className="mb-6 px-4 py-2 rounded-full border border-gold/20 bg-gold/5 text-gold/70 hover:text-gold font-display text-xs tracking-wider transition-all disabled:opacity-40"
+              >
+                <RefreshCw size={12} className={`inline mr-1.5 -mt-0.5 ${isReshuffling ? 'animate-spin' : ''}`} />
+                重新洗牌
+              </motion.button>
+
+              {/* Fan Spread */}
+              <div className="relative mx-auto" style={{ height: '340px', maxWidth: '700px' }}>
+                <AnimatePresence>
+                  {!isReshuffling && shuffledDeck.map((card, i) => {
+                    const angle = -fanAngleRange / 2 + (fanAngleRange / (totalCards - 1)) * i;
+                    const isSelected = selectedCards.some(c => c.id === card.id);
+                    const isFlipped = flippedIndices.has(i);
+
+                    return (
+                      <motion.div
+                        key={card.id}
+                        className="absolute cursor-pointer"
+                        style={{
+                          left: '50%',
+                          bottom: '-60px',
+                          width: '60px',
+                          height: '96px',
+                          transformOrigin: 'bottom center',
+                          zIndex: i,
+                        }}
+                        initial={{ rotate: 0, x: '-50%', opacity: 0, scale: 0.5 }}
+                        animate={{
+                          rotate: angle,
+                          x: '-50%',
+                          opacity: isSelected ? 0.3 : 1,
+                          scale: 1,
+                          y: 0,
+                        }}
+                        exit={{ opacity: 0, scale: 0.3, y: 50 }}
+                        transition={{ delay: Math.min(i * 0.008, 0.5), duration: 0.4, type: 'spring', damping: 20 }}
+                        whileHover={!isSelected ? { y: -30, scale: 1.15, zIndex: 100 } : {}}
+                        whileTap={!isSelected ? { scale: 0.95 } : {}}
+                        onClick={() => !isSelected && handleCardSelect(card, i)}
+                      >
+                        <div
+                          className={`w-full h-full rounded-md border ${isSelected ? 'border-gold/50' : 'border-gold/20'} bg-secondary overflow-hidden shadow-lg`}
+                          style={{ perspective: '600px' }}
+                        >
+                          <motion.div
+                            className="w-full h-full relative"
+                            style={{ transformStyle: 'preserve-3d' }}
+                            animate={{ rotateY: isFlipped ? 180 : 0 }}
+                            transition={{ duration: 0.6 }}
+                          >
+                            {/* Back */}
+                            <div
+                              className="absolute inset-0 rounded-md bg-gradient-to-br from-cosmic-deep via-secondary to-cosmic-deep flex items-center justify-center"
+                              style={{ backfaceVisibility: 'hidden' }}
+                            >
+                              <div className="text-gold/40 font-display text-sm">✦</div>
+                            </div>
+                            {/* Front */}
+                            <div
+                              className="absolute inset-0 rounded-md overflow-hidden"
+                              style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                            >
+                              <img src={card.image} alt={card.name} className="w-full h-full object-cover" loading="lazy" />
+                            </div>
+                          </motion.div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+
+              {/* Selected slots */}
+              <div className={`flex justify-center gap-4 mt-4`}>
+                {spreadLabels.map((label, i) => (
+                  <div key={label} className="text-center">
+                    <div className={`w-14 h-20 rounded-md border-2 border-dashed ${selectedCards[i] ? 'border-gold/50' : 'border-gold/15'} flex items-center justify-center bg-secondary/30`}>
+                      {selectedCards[i] ? (
+                        <img src={selectedCards[i].image} alt={selectedCards[i].name} className="w-full h-full object-cover rounded-md" />
+                      ) : (
+                        <span className="text-gold/20 font-display text-lg">{i + 1}</span>
+                      )}
+                    </div>
+                    <p className="text-gold/40 font-display text-[10px] mt-1">{label}</p>
+                  </div>
+                ))}
               </div>
             </motion.div>
           )}
@@ -319,7 +475,9 @@ const ReadingArea = () => {
               >
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-4 h-4 text-gold" />
-                  <p className="text-gold font-display text-sm">星光解读</p>
+                  <p className="text-gold font-display text-sm">
+                    {persona === 'seer' ? '🔥 毒舌预言' : '🌿 治愈解读'}
+                  </p>
                   {isInterpreting && <Loader2 className="w-3 h-3 text-gold/50 animate-spin" />}
                 </div>
 
@@ -333,6 +491,17 @@ const ReadingArea = () => {
                     <span className="text-muted-foreground text-sm ml-2">正在连接星光...</span>
                   </div>
                 )}
+              </motion.div>
+
+              {/* Ziwei Module */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 }}
+                className="bg-accent/30 border border-gold/10 rounded-xl p-4 text-center"
+              >
+                <p className="text-gold/60 font-display text-[10px] tracking-[0.2em] uppercase mb-2">☯ 今日紫微简评</p>
+                <p className="text-foreground/70 font-body text-sm leading-relaxed italic">{dailyZiwei}</p>
               </motion.div>
 
               <div className="text-center">

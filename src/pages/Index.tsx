@@ -3,6 +3,7 @@ import StarryBackground from '@/components/StarryBackground';
 import HeroSection from '@/components/HeroSection';
 import ReadingArea from '@/components/ReadingArea';
 import CardGrid from '@/components/CardGrid';
+import AmbientAudio from '@/components/AmbientAudio';
 import { getRemainingDraws } from '@/lib/daily-limit';
 
 type View = 'home' | 'reading' | 'encyclopedia';
@@ -59,6 +60,8 @@ const Index = () => {
           塔罗仅供娱乐与自我探索，不构成任何专业建议
         </p>
       </footer>
+
+      <AmbientAudio />
     </div>
   );
 };
