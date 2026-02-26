@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { question, cards, spreadType } = await req.json();
+    const { question, cards, spreadType, persona } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -23,14 +23,19 @@ serve(async (req) => {
       `位置「${positionLabels[i]}」：${card.name}（${card.nameEn}）— 正位含义：${card.upright}；逆位含义：${card.reversed}。${card.description}`
     ).join('\n');
 
-    const systemPrompt = `你是一位富有洞察力的塔罗牌解读师，擅长将塔罗牌的象征意义与提问者的实际情境相结合。你的解读风格温暖而深刻，既有神秘感又不失理性。
+    const personaPrompts: Record<string, string> = {
+      seer: `你是一位毒舌但精准的塔罗预言家。你的风格犀利直接、一针见血，不绕弯子。你会用略带戏谑的语气指出问题的核心，但最终依然给出有建设性的方向。你的话虽然扎心，但句句属实。偶尔用反问句刺激思考。`,
+      healer: `你是一位富有洞察力的塔罗牌解读师，擅长将塔罗牌的象征意义与提问者的实际情境相结合。你的解读风格温暖而深刻，既有神秘感又不失理性。你像一位慈爱的导师，用柔和的话语抚慰人心，给予力量和希望。`,
+    };
+
+    const systemPrompt = `${personaPrompts[persona] || personaPrompts.healer}
 
 解读规则：
 1. 先总览牌阵整体能量
 2. 逐一解读每张牌在其位置上的含义，结合提问者的具体问题
 3. 综合分析牌与牌之间的关联
 4. 给出清晰、有建设性的建议
-5. 语言优美，使用适当的比喻，但避免过于晦涩
+5. 语言${persona === 'seer' ? '犀利直率，偶尔带点幽默的毒舌' : '优美温暖，使用适当的比喻，充满关怀'}
 6. 保持 400-600 字的长度
 7. 使用 markdown 格式，用 **加粗** 突出关键词`;
 
