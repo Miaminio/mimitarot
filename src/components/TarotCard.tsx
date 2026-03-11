@@ -12,9 +12,9 @@ interface TarotCardProps {
 }
 
 const sizeClasses = {
-  sm: 'w-16 h-28 md:w-20 md:h-34',
-  md: 'w-24 h-40 md:w-28 md:h-48',
-  lg: 'w-36 h-60 md:w-44 md:h-72',
+  sm: 'w-24 h-36 md:w-32 md:h-48',
+  md: 'w-32 h-52 md:w-40 md:h-64',
+  lg: 'w-44 h-72 md:w-56 md:h-84',
 };
 
 const TarotCard = ({ card, isFlipped = false, onClick, size = 'md', index = 0, isSelected = false }: TarotCardProps) => {
@@ -22,13 +22,18 @@ const TarotCard = ({ card, isFlipped = false, onClick, size = 'md', index = 0, i
 
   return (
     <motion.div
-      className={`${sizeClasses[size]} cursor-pointer relative`}
+      className={`${sizeClasses[size]} cursor-pointer relative rounded-lg border-2 border-transparent transition-all duration-300 hover:shadow-[0_0_40px_15px_rgba(255,215,0,0.7)] hover:border-yellow-400`}
       style={{ perspective: '1000px' }}
       onClick={onClick}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.02, duration: 0.4 }}
-      whileHover={{ y: -8, scale: 1.05 }}
+      whileHover={{
+        y: -120,
+        scale: 1.28,
+        zIndex: 999,
+        transition: { duration: 0.22 },
+      }}
       whileTap={{ scale: 0.95 }}
     >
       <motion.div
@@ -39,7 +44,9 @@ const TarotCard = ({ card, isFlipped = false, onClick, size = 'md', index = 0, i
       >
         {/* Card Back */}
         <div
-          className={`absolute inset-0 rounded-lg border-2 ${isSelected ? 'border-gold card-glow-active' : 'border-gold-subtle card-glow'} bg-secondary overflow-hidden`}
+          className={`absolute inset-0 rounded-lg border-2 bg-secondary overflow-hidden ${
+            isSelected ? 'border-yellow-400 animate-gold-breath' : 'border-gold-subtle'
+          }`}
           style={{ backfaceVisibility: 'hidden' }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-cosmic-deep via-secondary to-cosmic-deep" />
@@ -59,7 +66,9 @@ const TarotCard = ({ card, isFlipped = false, onClick, size = 'md', index = 0, i
 
         {/* Card Front */}
         <div
-          className="absolute inset-0 rounded-lg border-2 border-gold-subtle bg-card card-glow overflow-hidden flex flex-col"
+          className={`absolute inset-0 rounded-lg border-2 bg-card overflow-hidden flex flex-col ${
+            isSelected ? 'border-yellow-400 animate-gold-breath' : 'border-gold-subtle'
+          }`}
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
           {/* Image area */}

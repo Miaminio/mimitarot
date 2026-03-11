@@ -98,6 +98,11 @@ export default {
           "0%, 100%": { opacity: "0.4" },
           "50%": { opacity: "1" },
         },
+        "gold-breath": {
+          "0%": { boxShadow: "0 0 20px #ffd700" },
+          "50%": { boxShadow: "0 0 50px #ffaa00" },
+          "100%": { boxShadow: "0 0 20px #ffd700" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -105,6 +110,7 @@ export default {
         "float": "float 6s ease-in-out infinite",
         "shimmer": "shimmer 3s ease-in-out infinite",
         "pulse-gold": "pulse-gold 3s ease-in-out infinite",
+        "gold-breath": "gold-breath 1.8s ease-in-out infinite",
       },
     },
   },

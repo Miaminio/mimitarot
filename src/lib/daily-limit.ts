@@ -10,14 +10,8 @@ function getTodayStr(): string {
 }
 
 export function canDrawToday(): boolean {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return true;
-    const record: DailyRecord = JSON.parse(raw);
-    return record.date !== getTodayStr() || !record.used;
-  } catch {
-    return true;
-  }
+  // 开发者模式：无限次抽牌，始终允许抽牌
+  return true;
 }
 
 export function markDrawUsed(): void {

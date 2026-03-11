@@ -212,25 +212,107 @@ const ReadingArea = () => {
     ? ['选项 A', '选项 B']
     : ['过去', '现在', '未来'];
 
-  // Fan layout calculations
+  // Fan layout calculations for ultra-wide shallow arc
   const totalCards = shuffledDeck.length;
-  const fanAngleRange = Math.min(totalCards * 1.8, 160); // degrees
+  const radius = 1600; // 超大半径，营造平缓弧形
 
   return (
-    <section className="relative z-10 py-20 px-4">
-      <div className="max-w-2xl mx-auto">
+    <section className="relative z-10 pt-8 md:pt-10 pb-24 md:pb-32 px-4 md:px-6">
+      {/* 顶部紧凑询问区：标题 + 副标题 + 输入框 */}
+      <div className="max-w-3xl mx-auto mb-4 md:mb-6">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="bg-background/60 border border-gold/15 rounded-2xl px-4 md:px-6 py-4 md:py-5 shadow-[0_0_40px_rgba(15,23,42,0.6)] backdrop-blur-sm space-y-3"
         >
-          <Sparkles className="w-6 h-6 text-gold mx-auto mb-4 animate-pulse-gold" />
-          <h2 className="text-gold-gradient font-display text-2xl md:text-4xl mb-3">探寻指引</h2>
-          <p className="text-muted-foreground text-sm md:text-base">
-            写下你的困惑，让塔罗为你指引方向
-          </p>
-        </motion.div>
+          <div className="flex items-center gap-3 md:gap-4">
+            <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-gold shrink-0 animate-pulse-gold" />
+            <div>
+              <h2 className="text-gold-gradient font-display text-xl md:text-3xl leading-tight">
+                探寻指引
+              </h2>
+              <p className="text-muted-foreground text-xs md:text-sm mt-1">
+                写下你的困惑，立刻抽牌获得当下的清晰指引
+              </p>
+            </div>
+          </div>
 
+          <div className="flex flex-col gap-3">
+            {/* Persona Selector + Quick questions */}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="relative">
+                <button
+                  onClick={() => setShowPersonaMenu(!showPersonaMenu)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-secondary/60 text-gold/80 hover:text-gold font-display text-[11px] md:text-xs tracking-wider transition-all"
+                >
+                  {personaOptions.find(p => p.key === persona)?.label}
+                  <ChevronDown size={12} className={`transition-transform ${showPersonaMenu ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {showPersonaMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      className="absolute top-full left-0 mt-2 bg-card border border-gold/20 rounded-xl overflow-hidden shadow-xl z-50 w-56"
+                    >
+                      {personaOptions.map(p => (
+                        <button
+                          key={p.key}
+                          onClick={() => { setPersona(p.key); setShowPersonaMenu(false); }}
+                          className={`w-full text-left px-4 py-3 hover:bg-gold/10 transition-colors ${persona === p.key ? 'bg-gold/5' : ''}`}
+                        >
+                          <div className="font-display text-sm text-foreground">{p.label}</div>
+                          <div className="font-body text-xs text-muted-foreground">{p.desc}</div>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <div className="flex flex-wrap justify-end gap-1.5 md:gap-2">
+                {quickQuestions.map((q) => (
+                  <motion.button
+                    key={q.text}
+                    whileHover={{ scale: 1.03, y: -1 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => handleQuickQuestion(q.text)}
+                    className="px-3 md:px-4 py-1.5 rounded-full border border-gold/20 bg-gold/5 hover:bg-gold/15 text-gold/80 hover:text-gold font-body text-[11px] md:text-xs transition-all backdrop-blur-sm"
+                  >
+                    {q.label}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <textarea
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder="输入你的问题... 例如：我该选择 A 工作还是 B 工作？"
+                className="w-full bg-secondary/60 border border-gold/25 rounded-xl px-3.5 md:px-4 py-3 pr-10 text-foreground placeholder:text-muted-foreground/55 focus:outline-none focus:border-gold/60 resize-none h-24 md:h-28 font-body text-sm md:text-base transition-all"
+              />
+              <button
+                onClick={handleSubmit}
+                disabled={!question.trim()}
+                className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-gold/25 hover:bg-gold/35 flex items-center justify-center text-gold transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <Send size={14} />
+              </button>
+            </div>
+
+            {!canDrawToday() && (
+              <p className="text-center text-muted-foreground text-[11px]">
+                今日免费抽牌已使用，明天再来吧 ✨
+              </p>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* 下方区域与顶部紧密衔接 */}
+      <div className="max-w-5xl mx-auto">
         <AnimatePresence mode="wait">
           {phase === 'input' && (
             <motion.div
@@ -238,76 +320,8 @@ const ReadingArea = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="space-y-4"
-            >
-              {/* Persona Selector */}
-              <div className="flex justify-center mb-2">
-                <div className="relative">
-                  <button
-                    onClick={() => setShowPersonaMenu(!showPersonaMenu)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full border border-gold/20 bg-secondary/50 text-gold/80 hover:text-gold font-display text-xs tracking-wider transition-all"
-                  >
-                    {personaOptions.find(p => p.key === persona)?.label}
-                    <ChevronDown size={12} className={`transition-transform ${showPersonaMenu ? 'rotate-180' : ''}`} />
-                  </button>
-                  <AnimatePresence>
-                    {showPersonaMenu && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -4 }}
-                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-card border border-gold/20 rounded-xl overflow-hidden shadow-xl z-50 w-56"
-                      >
-                        {personaOptions.map(p => (
-                          <button
-                            key={p.key}
-                            onClick={() => { setPersona(p.key); setShowPersonaMenu(false); }}
-                            className={`w-full text-left px-4 py-3 hover:bg-gold/10 transition-colors ${persona === p.key ? 'bg-gold/5' : ''}`}
-                          >
-                            <div className="font-display text-sm text-foreground">{p.label}</div>
-                            <div className="font-body text-xs text-muted-foreground">{p.desc}</div>
-                          </button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-
-              {/* Quick Questions */}
-              <div className="flex flex-wrap justify-center gap-2 mb-2">
-                {quickQuestions.map((q) => (
-                  <motion.button
-                    key={q.text}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleQuickQuestion(q.text)}
-                    className="px-4 py-2 rounded-full border border-gold/20 bg-gold/5 hover:bg-gold/15 text-gold/80 hover:text-gold font-body text-sm transition-all backdrop-blur-sm"
-                  >
-                    {q.label}
-                  </motion.button>
-                ))}
-              </div>
-
-              <div className="relative">
-                <textarea
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  placeholder="输入你的问题... 例如：我该选择A工作还是B工作？"
-                  className="w-full bg-secondary/50 border border-gold/20 rounded-xl p-4 pr-12 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-gold/50 resize-none h-24 font-body text-base transition-all"
-                />
-                <button
-                  onClick={handleSubmit}
-                  disabled={!question.trim()}
-                  className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-gold/20 hover:bg-gold/30 flex items-center justify-center text-gold transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  <Send size={14} />
-                </button>
-              </div>
-              {!canDrawToday() && (
-                <p className="text-center text-muted-foreground text-xs">今日免费抽牌已使用，明天再来吧 ✨</p>
-              )}
-            </motion.div>
+              className="pt-1"
+            />
           )}
 
           {phase === 'shuffling' && (
@@ -316,7 +330,7 @@ const ReadingArea = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-center py-16"
+              className="text-center py-12"
             >
               <motion.div
                 animate={{ rotate: 360 }}
@@ -359,11 +373,19 @@ const ReadingArea = () => {
                 重新洗牌
               </motion.button>
 
-              {/* Fan Spread */}
-              <div className="relative mx-auto" style={{ height: '400px', width: '80vw', maxWidth: '900px' }}>
+              {/* Fan Spread – 巨幕化全屏弧形 */}
+              <div className="relative mx-auto w-full h-[56vh] px-10 md:px-20 -translate-y-16 md:-translate-y-24 overflow-visible">
                 <AnimatePresence>
                   {!isReshuffling && shuffledDeck.map((card, i) => {
-                    const angle = -fanAngleRange / 2 + (fanAngleRange / (totalCards - 1)) * i;
+                    if (totalCards <= 1) return null;
+                    const t = i / (totalCards - 1); // 0 → 1
+                    const centerIndex = (totalCards - 1) / 2;
+                    const offsetIndex = i - centerIndex;
+                    const spreadWidth = 1400; // 略微收紧水平展开宽度，避免两侧溢出
+                    const dx = (offsetIndex / centerIndex) * (spreadWidth / 2);
+                    const safe = Math.max(radius * radius - dx * dx, 0);
+                    const dy = radius - Math.sqrt(safe); // 向上的高度
+                    const angle = (dx / (spreadWidth / 2)) * 18; // 略微减小旋转步长，收紧弧度
                     const isSelected = selectedCards.some(c => c.card.id === card.id);
                     const isFlipped = flippedIndices.has(i);
 
@@ -372,24 +394,32 @@ const ReadingArea = () => {
                         key={card.id}
                         className="absolute cursor-pointer"
                         style={{
-                          left: '50%',
-                          bottom: '-60px',
+                          left: `${5 + t * 90}%`, // 预留左右安全边距
+                          bottom: '32px',
                           width: '72px',
-                          height: '112px',
+                          height: '120px',
                           transformOrigin: 'bottom center',
                           zIndex: i,
                         }}
-                        initial={{ rotate: 0, x: '-50%', opacity: 0, scale: 0.5 }}
+                        initial={{ rotate: 0, x: '-50%', opacity: 0, scale: 0.5, y: 80 }}
                         animate={{
                           rotate: angle,
                           x: '-50%',
                           opacity: isSelected ? 0.3 : 1,
                           scale: 1,
-                          y: 0,
+                          y: -dy * 0.45,
                         }}
                         exit={{ opacity: 0, scale: 0.3, y: 50 }}
                         transition={{ delay: Math.min(i * 0.008, 0.5), duration: 0.4, type: 'spring', damping: 20 }}
-                        whileHover={!isSelected ? { y: -40, scale: 1.25, zIndex: 100 } : {}}
+                        whileHover={
+                          !isSelected
+                            ? {
+                                y: -dy * 0.5 - 32,
+                                scale: 1.2,
+                                zIndex: 200,
+                              }
+                            : {}
+                        }
                         whileTap={!isSelected ? { scale: 0.95 } : {}}
                         onClick={() => !isSelected && handleCardSelect(card, i)}
                       >
@@ -426,7 +456,7 @@ const ReadingArea = () => {
               </div>
 
               {/* Selected slots */}
-              <div className={`flex justify-center gap-4 md:gap-6 mt-4`}>
+              <div className={`flex justify-center gap-4 md:gap-6 mt-10 md:mt-14`}>
                 {spreadLabels.map((label, i) => (
                   <div key={label} className="text-center">
                     <div className={`w-16 h-24 md:w-20 md:h-28 rounded-md border-2 border-dashed ${selectedCards[i] ? 'border-gold/50' : 'border-gold/15'} flex items-center justify-center bg-secondary/30`}>
