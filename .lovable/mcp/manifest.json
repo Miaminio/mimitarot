@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "cosmic-card-oracle",
+      "version": "0.1.0",
+      "title": "Cosmic Card Oracle"
+    },
+    "tools": [
+      {
+        "name": "list_tarot_cards",
+        "title": "List tarot cards",
+        "description": "List the tarot deck used by this app (78 cards). Optionally filter to major or minor arcana. Returns names and short upright/reversed keywords.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "arcana": {
+              "type": "string",
+              "enum": [
+                "all",
+                "major",
+                "minor"
+              ],
+              "description": "Which arcana to list. Defaults to all."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_tarot_card",
+        "title": "Get tarot card meaning",
+        "description": "Look up one tarot card by Chinese or English name (or partial name) and return its full meaning: imagery, upright and reversed interpretations, and background.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Card name in Chinese or English, e.g. 愚者 or The Fool."
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "draw_tarot_spread",
+        "title": "Draw a tarot spread",
+        "description": "Shuffle this app's tarot deck and draw a spread (timeline, choice, or single card) with random upright/reversed orientation. Returns each drawn card with its position and meanings so the caller can interpret the reading.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "description": "The querent's question, echoed back in the result."
+            },
+            "spread": {
+              "type": "string",
+              "enum": [
+                "timeline",
+                "choice",
+                "single"
+              ],
+              "description": "Spread type. Defaults to timeline (past / present / future)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
