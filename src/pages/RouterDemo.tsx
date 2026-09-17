@@ -4,6 +4,7 @@ import { analyzeQuestion } from '@/lib/divination-router/api';
 import { routeDivinationMethod } from '@/lib/divination-router/router';
 import type {
   DivinationMethod,
+  QuestionDomain,
   RouterResult,
   SemanticQuestionAnalysis,
 } from '@/lib/divination-router/types';
@@ -23,6 +24,38 @@ const examples = [
   '看看以后',
 ];
 
+interface ClarificationOption {
+  label: string;
+  detail: string;
+}
+
+function getClarificationOptions(domain: QuestionDomain): ClarificationOption[] {
+  if (domain === 'relationship') {
+    return [
+      { label: '现在的关系与内心状态', detail: '我主要想了解现在这段关系的状态、双方感受以及我需要关注什么。' },
+      { label: '近期会怎么发展', detail: '我主要想了解接下来一段时间这段关系会发生什么、如何发展。' },
+      { label: '某件具体事情能不能成', detail: '我主要想判断这段关系里一件明确的事情最终能不能实现。' },
+      { label: '长期感情模式', detail: '我主要想了解自己跨越多段关系反复出现的长期感情模式。' },
+    ];
+  }
+
+  if (domain === 'career' || domain === 'education') {
+    return [
+      { label: '当前困境与建议', detail: '我主要想了解当前遇到的困境、原因以及应该如何应对。' },
+      { label: '近期会有什么变化', detail: '我主要想了解接下来一段时间会发生哪些现实变化。' },
+      { label: '某个结果能不能实现', detail: '我主要想判断一个明确目标或结果最终能不能实现。' },
+      { label: '长期发展方向', detail: '我主要想了解未来几年长期的发展模式与人生周期。' },
+    ];
+  }
+
+  return [
+    { label: '当前状态与建议', detail: '我主要想了解自己现在的状态、原因以及需要关注什么。' },
+    { label: '近期会发生什么', detail: '我主要想了解接下来一段时间会发生什么以及事情如何发展。' },
+    { label: '具体事情能不能成', detail: '我主要想判断一件明确的事情最终能不能实现。' },
+    { label: '长期人生方向', detail: '我主要想了解未来几年长期的人生模式、方向和周期。' },
+  ];
+}
+
 const RouterDemo = () => {
   const [question, setQuestion] = useState('');
   const [analysis, setAnalysis] = useState<SemanticQuestionAnalysis | null>(null);
@@ -35,6 +68,11 @@ const RouterDemo = () => {
     if (!result) return [];
     return Object.entries(result.scores).sort((a, b) => b[1] - a[1]);
   }, [result]);
+
+  const clarificationOptions = useMemo(
+    () => (analysis ? getClarificationOptions(analysis.domain) : []),
+    [analysis],
+  );
 
   const runAnalysis = async (value?: string) => {
     const q = (value ?? question).trim();
@@ -57,6 +95,12 @@ const RouterDemo = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const runClarification = (detail: string) => {
+    const original = question.trim();
+    if (!original) return;
+    runAnalysis(`${original}\n补充说明：${detail}`);
   };
 
   return (
@@ -137,6 +181,22 @@ const RouterDemo = () => {
                   </h2>
                   <p className="text-muted-foreground max-w-2xl mx-auto">
                     {result.clarificationQuestion}
+                  </p>
+                  <div className="grid sm:grid-cols-2 gap-2 max-w-2xl mx-auto pt-2">
+                    {clarificationOptions.map((option) => (
+                      <button
+                        key={option.label}
+                        type="button"
+                        disabled={loading}
+                        onClick={() => runClarification(option.detail)}
+                        className="rounded-xl border border-gold/20 bg-background/35 px-4 py-3 text-sm text-gold/85 hover:bg-gold/10 hover:border-gold/35 transition-colors disabled:opacity-40"
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground/70">
+                    选择一项后会自动补充你的意图并重新推荐，不需要再填写一轮问卷。
                   </p>
                 </>
               ) : (
