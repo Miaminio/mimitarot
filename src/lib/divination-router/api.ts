@@ -14,6 +14,39 @@ function coerceBoolean(value: unknown, fallback = false): boolean {
   return fallback;
 }
 
+function compactQuestion(question: string): string {
+  return question
+    .replace(/\s+/g, '')
+    .replace(/[？?！!。,.，、]/g, '');
+}
+
+function isBareVagueQuestion(question: string): boolean {
+  const compact = compactQuestion(question);
+  return [
+    /^看看$/,
+    /^帮我看看$/,
+    /^看一下$/,
+    /^帮我看一下$/,
+    /^看看以后$/,
+    /^看看未来$/,
+    /^以后怎么样$/,
+    /^以后会怎么样$/,
+    /^未来怎么样$/,
+    /^未来会怎么样$/,
+    /^看看运势$/,
+  ].some((pattern) => pattern.test(compact));
+}
+
+function hasRepeatedLongTermPatternEvidence(question: string): boolean {
+  return /(每一?段|每次|总是|反复|一再|从小到大|多年|这些年|过去几年|长期以来|一直以来.*(?:每|不同))/u.test(
+    question,
+  );
+}
+
+function isSingleCurrentRelationshipQuestion(question: string): boolean {
+  return /(这段关系|这段感情|当前这段|现在这段|我和他|我和她)/u.test(question);
+}
+
 export async function analyzeQuestion(
   question: string,
 ): Promise<SemanticQuestionAnalysis> {
@@ -39,16 +72,57 @@ export async function analyzeQuestion(
   // while Lovable Cloud may return the analysis object directly.
   const rawAnalysis = payload?.analysis ?? payload;
 
-  // Keep the frontend contract stable even when the cloud implementation
-  // omits raw_question or serializes booleans as 0/1.
+  const bareVague = isBareVagueQuestion(question);
+  const singleCurrentRelationship =
+    isSingleCurrentRelationshipQuestion(question) &&
+    !hasRepeatedLongTermPatternEvidence(question);
+
+  let primaryGoal = rawAnalysis?.primary_goal;
+  let answerShape = rawAnalysis?.answer_shape;
+  let timeHorizon = rawAnalysis?.time_horizon;
+  let longTermPattern = rawAnalysis?.long_term_pattern;
+
+  // A phrase such as “一直舍不得离开这段关系” describes one current
+  // relationship. “一直” alone is not evidence of a cross-relationship or
+  // multi-year recurring life pattern. Correct occasional LLM over-routing
+  // toward astrology at the semantic boundary.
+  if (
+    singleCurrentRelationship &&
+    (primaryGoal === 'long_term_pattern' || primaryGoal === 'life_cycle')
+  ) {
+    primaryGoal =
+      answerShape === 'advice' || coerceBoolean(rawAnalysis?.decision_required)
+        ? 'advice'
+        : 'hidden_factor';
+    answerShape = answerShape === 'advice' ? 'advice' : 'explanation';
+    if (timeHorizon === 'multi_year' || timeHorizon === 'year') {
+      timeHorizon = 'current';
+    }
+    const numericLongTerm = Number(longTermPattern);
+    longTermPattern = Number.isFinite(numericLongTerm)
+      ? Math.min(0.35, Math.max(0, numericLongTerm))
+      : 0.2;
+  }
+
+  // Bare prompts such as “看看以后” are intentionally forced into the
+  // clarification path. Method scores must not decide the user's intent when
+  // the user has not supplied a domain or question type at all.
   const normalizedAnalysis = {
     ...rawAnalysis,
     raw_question:
       typeof rawAnalysis?.raw_question === 'string' && rawAnalysis.raw_question.trim()
         ? rawAnalysis.raw_question
         : question,
+    primary_goal: primaryGoal,
+    answer_shape: answerShape,
+    time_horizon: timeHorizon,
+    long_term_pattern: bareVague ? 0 : longTermPattern,
+    specificity: bareVague ? 0.05 : rawAnalysis?.specificity,
+    question_clarity: bareVague ? 0.05 : rawAnalysis?.question_clarity,
+    core_information_missing: bareVague
+      ? true
+      : coerceBoolean(rawAnalysis?.core_information_missing),
     decision_required: coerceBoolean(rawAnalysis?.decision_required),
-    core_information_missing: coerceBoolean(rawAnalysis?.core_information_missing),
   };
 
   return semanticQuestionAnalysisSchema.parse(normalizedAnalysis);
