@@ -22,13 +22,16 @@ export function decideClarification(
   analysis: SemanticQuestionAnalysis,
   scores: MethodScores,
 ): ClarificationDecision {
-  const [top1, top2] = rankMethods(scores);
-  const gap = scores[top1] - scores[top2];
+  const [top1] = rankMethods(scores);
 
+  // If both the semantic parser and deterministic normalization agree that
+  // core information is missing, do not let an arbitrary score gap invent a
+  // method. This keeps clarification rare, but makes truly vague prompts
+  // deterministic across repeated runs.
   const extremelyAmbiguous =
-    analysis.question_clarity < 0.3 &&
-    analysis.core_information_missing &&
-    gap < 8;
+    analysis.question_clarity < 0.22 &&
+    analysis.specificity < 0.2 &&
+    analysis.core_information_missing;
 
   if (extremelyAmbiguous) {
     return {
