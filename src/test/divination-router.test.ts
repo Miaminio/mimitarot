@@ -125,7 +125,7 @@ describe('divination router v1', () => {
     expect(result.recommendedMethod).toBe('tarot');
   });
 
-  it('clarifies only when the question is extremely ambiguous', () => {
+  it('clarifies when the question is extremely ambiguous', () => {
     const result = routeDivinationMethod(
       analysis({
         raw_question: '看看以后',
@@ -140,6 +140,29 @@ describe('divination router v1', () => {
         external_event_focus: 0.25,
         binary_nature: 0.1,
         question_clarity: 0.1,
+        core_information_missing: true,
+      }),
+    );
+    expect(result.clarificationRequired).toBe(true);
+    expect(result.recommendedMethod).toBeNull();
+  });
+
+  it('still clarifies a vague prompt even if semantic scoring strongly favors astrology', () => {
+    const result = routeDivinationMethod(
+      analysis({
+        raw_question: '看看以后',
+        normalized_question: '想看看以后的人生',
+        domain: 'general',
+        primary_goal: 'life_cycle',
+        secondary_goal: 'long_term_pattern',
+        answer_shape: 'long_term_map',
+        time_horizon: 'multi_year',
+        specificity: 0.05,
+        internal_focus: 0.3,
+        external_event_focus: 0.1,
+        binary_nature: 0.05,
+        long_term_pattern: 0.95,
+        question_clarity: 0.05,
         core_information_missing: true,
       }),
     );
