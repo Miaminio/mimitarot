@@ -1,4 +1,5 @@
 import type {
+  AnswerShape,
   DivinationMethod,
   MethodScores,
   QuestionGoal,
@@ -19,6 +20,11 @@ const goalWeight = (
 ) =>
   primaryGoalWeight(analysis.primary_goal, target) +
   secondaryGoalWeight(analysis.secondary_goal, target);
+
+const answerShapeWeight = (
+  actual: AnswerShape,
+  targets: AnswerShape[],
+) => (targets.includes(actual) ? 1 : 0);
 
 const shortTermWeight = (analysis: SemanticQuestionAnalysis) => {
   switch (analysis.time_horizon) {
@@ -70,14 +76,20 @@ export function scoreDivinationMethods(
     18 * goalWeight(analysis, 'hidden_factor') +
     18 * goalWeight(analysis, 'advice') +
     14 * goalWeight(analysis, 'relationship_dynamic') +
-    10 * (1 - analysis.binary_nature);
+    10 * (1 - analysis.binary_nature) +
+    8 * answerShapeWeight(analysis.answer_shape, [
+      'explanation',
+      'reflection',
+      'advice',
+    ]);
 
   let lenormand =
     32 * goalWeight(analysis, 'event_forecast') +
     22 * analysis.external_event_focus +
     18 * shortTermWeight(analysis) +
     14 * (1 - analysis.binary_nature) +
-    14 * analysis.specificity;
+    14 * analysis.specificity +
+    10 * answerShapeWeight(analysis.answer_shape, ['prediction']);
 
   let liuyao =
     30 * goalWeight(analysis, 'event_outcome') +
@@ -85,14 +97,17 @@ export function scoreDivinationMethods(
     16 * analysis.timing_need +
     14 * analysis.comparison_need +
     10 * analysis.external_event_focus +
-    8 * analysis.specificity;
+    8 * analysis.specificity +
+    10 * answerShapeWeight(analysis.answer_shape, ['yes_no']) +
+    8 * answerShapeWeight(analysis.answer_shape, ['timing', 'comparison']);
 
   let astrology =
     32 * analysis.long_term_pattern +
     26 * goalWeight(analysis, 'long_term_pattern') +
     22 * goalWeight(analysis, 'life_cycle') +
     12 * longTermWeight(analysis) +
-    8 * analysis.internal_focus;
+    8 * analysis.internal_focus +
+    10 * answerShapeWeight(analysis.answer_shape, ['long_term_map']);
 
   if (
     analysis.internal_focus >= 0.75 &&
