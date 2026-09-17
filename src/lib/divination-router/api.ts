@@ -24,5 +24,8 @@ export async function analyzeQuestion(
     throw new Error(message);
   }
 
-  return semanticQuestionAnalysisSchema.parse(payload.analysis);
+  // GitHub reference implementation returns { analysis: {...} },
+  // while Lovable Cloud may return the analysis object directly.
+  const analysisPayload = payload?.analysis ?? payload;
+  return semanticQuestionAnalysisSchema.parse(analysisPayload);
 }
